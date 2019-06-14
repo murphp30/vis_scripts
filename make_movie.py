@@ -6,7 +6,7 @@ import cv2
 import os
 import sys
 import argparse
-
+import pdb
 
 
 
@@ -16,7 +16,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument('-indir', dest='indir', help='input directory', default='./')
 args = parser.parse_args()
 indir = args.indir
-
+#pdb.set_trace()
 
 images = glob.glob(indir+'*.png')
 images.sort()
@@ -27,7 +27,7 @@ cv2.imshow('video', frame)
 height, width, channels = frame.shape
 
 fourcc = cv2.VideoWriter_fourcc(*'mp4v')
-out = cv2.VideoWriter(output, fourcc, 20., (width, height))
+out = cv2.VideoWriter(output, fourcc, 10., (width, height))
 
 for image in images:
      image_path = image
