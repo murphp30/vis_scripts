@@ -4,11 +4,23 @@ import matplotlib.pyplot as plt
 from matplotlib.patches import Ellipse,Circle
 import numpy as np
 from astropy.io import fits
-from astropy.coordinates import Angle
+from astropy.wcs import WCS
+from astropy.visualization.wcsaxes import WCSAxes
+from astropy.coordinates import SkyCoord, Angle, EarthLocation, AltAz
 import astropy.units as u
 import sys
 import pdb
 import scipy.optimize as opt
+import sunpy
+import sunpy.map
+from sunpy.map import header_helper
+import sunpy.coordinates
+import sunpy.coordinates.sun as sun
+from sunpy.coordinates import frames
+
+
+
+
 #prefix = sys.argv[3]
 def fits_data(fits_file):
     with fits.open(fits_file) as hdu:
@@ -24,6 +36,17 @@ def poly_area(vs):
         yi1 = vs[i+1][1]
         s.append((xi*yi1-xi1*yi))
     return 0.5*np.sum(s)
+
+def LOFAR_to_sun(smap):
+    obs_coord = SkyCoord(smap.reference_coordinate, distance=sun.earth_distance(smap.date),obstime=smap.date)
+    rot_ang = sun.P(smap.date) 
+    smap_rot = smap.rotate(angle=-rot_ang)
+    smap_out_head = header_helper.make_fitswcs_header(smap_rot.data,obs_coord.transform_to(frames.Helioprojective),
+            u.Quantity(smap_rot.reference_pixel),u.Quantity(smap_rot.scale))
+    smap_out = sunpy.map.Map(smap_rot.data, smap_out_head)
+    smap_out.meta['wavelnth'] = smap.meta['crval3']/1e6
+    smap_out.meta['waveunit'] = "MHz"
+    return smap_out
 
 def plot_all(niters):
     dirty = fits_data(prefix+"-dirty.fits")
@@ -156,26 +179,40 @@ if __name__ == "__main__":
 
     fits_in = sys.argv[1]
     out_png = sys.argv[2]
-    plot_one(fits_in)#, True)    
-    plt.savefig(out_png)
+    # plot_one(fits_in)#, True)    
+    # plt.savefig(out_png)
 #plot_all('1')
     #plt.show()
-    data = fits_data(fits_in)
-    with fits.open(fits_in) as hdu:
-        BMAJ = hdu[0].header["BMAJ"]
-        BMIN = hdu[0].header["BMIN"]
-        BPA = hdu[0].header["BPA"]
-        head_str = fits.Header.tostring(hdu[0].header)
-        str_start = head_str.find('scale')
-        str_end = head_str.find('asec')
-        axis_x = hdu[0].header["NAXIS1"]
-        axis_y = hdu[0].header["NAXIS2"]
-        scale = Angle(float(head_str[str_end-7:str_end])*u.arcsec)
-        sun_x, sun_y = int(hdu[0].header['CRPIX1']), int(hdu[0].header['CRPIX2'])
-        sun_x, sun_y = sun_x*scale.arcsec, sun_y*scale.arcsec
-        MHz = hdu[0].header['CRVAL3']*1e-6
-        obs_date = hdu[0].header["DATE-OBS"]
-    sun_rad = Angle(0.25*u.deg)
+    # data = fits_data(fits_in)
+    # with fits.open(fits_in) as hdu:
+    #     BMAJ = hdu[0].header["BMAJ"]
+    #     BMIN = hdu[0].header["BMIN"]
+    #     BPA = hdu[0].header["BPA"]
+    #     head_str = fits.Header.tostring(hdu[0].header)
+    #     str_start = head_str.find('scale')
+    #     str_end = head_str.find('asec')
+    #     axis_x = hdu[0].header["NAXIS1"]
+    #     axis_y = hdu[0].header["NAXIS2"]
+    #     scale = Angle(float(head_str[str_end-7:str_end])*u.arcsec)
+    #     sun_x, sun_y = int(hdu[0].header['CRPIX1']), int(hdu[0].header['CRPIX2'])
+    #     sun_x, sun_y = sun_x*scale.arcsec, sun_y*scale.arcsec
+    #     MHz = hdu[0].header['CRVAL3']*1e-6
+    #     obs_date = hdu[0].header["DATE-OBS"]
+    # sun_rad = Angle(0.25*u.deg)
+
+    # LOFAR_centre = [3826577.066*u.m, 461022.948*u.m, 5064892.786*u.m]
+    # LOFAR_earth = EarthLocation(*LOFAR_centre)
+    # wcs = WCS(fits_in)
+    smap = sunpy.map.Map(fits_in)
+    smap.meta['wavelnth'] = smap.meta['crval3']/1e6
+    smap.meta['waveunit'] = "MHz"
+    # smap.plot(cmap='viridis')
+    # plt.figure()
+    helio_smap = LOFAR_to_sun(smap)
+    helio_smap.plot(cmap='viridis')
+    helio_smap.draw_limb(color='r')
+    plt.savefig(out_png)
+    
     #pdb.set_trace()
     """
     popt = gauss_params(data,axis_x)
