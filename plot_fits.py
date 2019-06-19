@@ -43,7 +43,7 @@ def LOFAR_to_sun(smap):
     smap_rot = smap.rotate(angle=-rot_ang)
     smap_out_head = header_helper.make_fitswcs_header(smap_rot.data,obs_coord.transform_to(frames.Helioprojective),
             u.Quantity(smap_rot.reference_pixel),u.Quantity(smap_rot.scale))
-    smap_out = sunpy.map.Map(smap_rot.data, smap_out_head)
+    smap_out = sunpy.map.Map(smap_rot.data, smap_out_head,plot_settings={'cmap':'viridis'})
     smap_out.meta['wavelnth'] = smap.meta['crval3']/1e6
     smap_out.meta['waveunit'] = "MHz"
     return smap_out
