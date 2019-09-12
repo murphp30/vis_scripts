@@ -184,9 +184,6 @@ vis_file = "SB076MS_data.npz"
 sb = int(vis_file.split("SB")[-1][:3])
 epoch_start = datetime(1858,11,17) #MJD
 
-ncorrs=666
-
-
 load_vis = np.load(vis_file)
 freq = float(load_vis["freq"])
 delt = float(load_vis["dt"])
@@ -212,58 +209,53 @@ data = data[0,:] + data[3,:]
 V = vis[0,:] + vis[3,:]
 
 vis_err = np.sqrt(1/weights)
-
+vis_err = np.sqrt(abs(vis_err[0,:])**2 + abs(vis_err[3,:])**2)
 weights = (weights[0,:] + weights[3,:])
 #averaged weight is sum of weights according to 
 # https://www.astron.nl/lofarwiki/lib/exe/fetch.php?media=public:user_software:documentation:ndppp_weights.pdf (accessed 08/08/2019)
 # and maths, I guess
 
-vis_err = np.sqrt(abs(vis_err[0,:])**2 + abs(vis_err[3,:])**2)
+sun_diam_rad = Angle(0.5*u.deg).rad
+sig_sun = sun_diam_rad/(2*np.sqrt(2*np.log(2)))
 
-for t in range(0,3):
-	d_auto = {"u":uvws[0,:][auto_corrs],"v":uvws[1,:][auto_corrs],"w":uvws[2,:][auto_corrs], 
-	"times":times[auto_corrs], "vis":V[auto_corrs], "vis_err":vis_err[auto_corrs],"weight":weights[auto_corrs]}
-	d_cross = {"u":uvws[0,:][cross_corrs],"v":uvws[1,:][cross_corrs],"w":uvws[2,:][cross_corrs], 
-	"times":times[cross_corrs], "vis":V[cross_corrs], "vis_err":vis_err[cross_corrs],"weight":weights[cross_corrs]}
+stria_oom = Angle(0.1*u.arcmin).rad
+sig_stria = stria_oom/(2*np.sqrt(2*np.log(2)))
+
+scatter_diam = Angle(10*u.arcmin).rad
+sig_scatter = scatter_diam/(2*np.sqrt(2*np.log(2)))
+
+sig_x_guess = 0.625*sig_sun
+sig_y_guess = sig_sun
+
+
+
+
+
+df_auto_list = []
+df_cross_list = []
+for t in range(40,41):
+	d_auto = {"u":uvws[0,t,:][auto_corrs],"v":uvws[1,t,:][auto_corrs],"w":uvws[2,t,:][auto_corrs], 
+	"times":times[t,auto_corrs], "vis":V[t,auto_corrs], "vis_err":vis_err[t,auto_corrs],"weight":weights[t,auto_corrs]}
+	d_cross = {"u":uvws[0,t,:][cross_corrs],"v":uvws[1,t,:][cross_corrs],"w":uvws[2,t,:][cross_corrs], 
+	"times":times[t,cross_corrs], "vis":V[t,cross_corrs], "vis_err":vis_err[t,cross_corrs],"weight":weights[t,cross_corrs]}
 
 	df_auto = pd.DataFrame(data=d_auto) 
 	df_cross = pd.DataFrame(data=d_cross) 
 
-	 
+	df_auto_list.append(df_auto)
+	df_cross_list.append(df_cross)
+
+for df_cross in df_cross_list:
 
 	uv_dist = np.sqrt(df_cross.u**2 + df_cross.v**2)
-
 	ang_scales = Angle((1/uv_dist)*u.rad)
-
-
-	a0 = np.where(ang_scales.arcmin < 20 )[0]
-	a1 = np.where(ang_scales.arcmin > 100 )[0]
-
-	u0 = np.where(df_cross.u.sort_values() < 200)[0]
-	u1 = np.where(df_cross.u.sort_values() >-200)[0]
-	u_zoom = df_cross.u[df_cross.u.sort_values().index[u1[0]:u0[-1]]] 
-	v_zoom = df_cross.v[df_cross.u.sort_values().index[u1[0]:u0[-1]]] 
-
 	bg = np.where(ang_scales.arcmin < 2 )[0]
 	bg_vis = df_cross.vis[bg]
 	bg_med = np.median(bg_vis) 
-	df_cross = df_cross.assign(vis_log = (np.log(df_cross.vis) - np.log(bg_med)))
 	df_cross = df_cross.assign(bg_vis = (df_cross.vis - bg_med))
 
 
-	sun_diam_rad = Angle(0.5*u.deg).rad
-	sig_sun = sun_diam_rad/(2*np.sqrt(2*np.log(2)))
-
-	stria_oom = Angle(0.1*u.arcmin).rad
-	sig_stria = stria_oom/(2*np.sqrt(2*np.log(2)))
-
-	scatter_diam = Angle(10*u.arcmin).rad
-	sig_scatter = scatter_diam/(2*np.sqrt(2*np.log(2)))
-
-	sig_x_guess = 0.625*sig_sun
-	sig_y_guess = sig_sun
-
-	#params use starting values determined by playing around with it.
+#params use starting values determined by playing around with it.
 
 
 	params = Parameters()
@@ -299,13 +291,13 @@ for t in range(0,3):
 		ax.yaxis.set_label_coords(-0.1, 0.5) 
 	 
 	axes[-1].set_xlabel("step number");
-	plt.savefig("/Users/murphp30/Documents/Postgrad/useful_images/mcmc_chain_abs.png")
+	# plt.savefig("/Users/murphp30/Documents/Postgrad/useful_images/mcmc_chain_abs.png")
 
 	samples = sampler.chain[:, 50:, :].reshape((-1, ndim))
 
 	mc_pars = np.percentile(samples,[16,50,84],axis=0)
 	c_plot = corner.corner(samples, labels=["I0", "sig_x","sig_y", "theta"], truths=[*mc_pars[1]]) 
-	plt.savefig("/Users/murphp30/Documents/Postgrad/useful_images/mcmc_corner_abs.png")
+	# plt.savefig("/Users/murphp30/Documents/Postgrad/useful_images/mcmc_corner_abs.png")
 
 	phs_ndim = 2
 	phs_params = Parameters()
@@ -328,34 +320,30 @@ for t in range(0,3):
 		ax.yaxis.set_label_coords(-0.1, 0.5) 
 	 
 	axes[-1].set_xlabel("step number");
-	plt.savefig("/Users/murphp30/Documents/Postgrad/useful_images/mcmc_chain_xy.png")
+	# plt.savefig("/Users/murphp30/Documents/Postgrad/useful_images/mcmc_chain_xy.png")
 
 	phs_samples = phs_sampler.chain[:, 50:, :].reshape((-1, phs_ndim))
 
 	phs_mc_pars = np.percentile(phs_samples,[16,50,84],axis=0)
 	phs_c_plot = corner.corner(phs_samples, labels=["x0","y0"], truths=[*phs_mc_pars[1]]) 
-	plt.savefig("/Users/murphp30/Documents/Postgrad/useful_images/mcmc_corner_xy.png")
+	# plt.savefig("/Users/murphp30/Documents/Postgrad/useful_images/mcmc_corner_xy.png")
 
 	two_fit_pars = np.insert(mc_pars[1],1,phs_mc_pars[1])
+	mcg = gauss_2D(df_cross.u, df_cross.v, *two_fit_pars)
 
-	mc_fit_params = Parameters()
-	mc_fit_params.add_many(('I0',two_fit_pars[0],False), 
-		('x0',two_fit_pars[1],True,-2*sun_diam_rad,2*sun_diam_rad),
-		('y0',two_fit_pars[2],True,-2*sun_diam_rad,2*sun_diam_rad),
-		('sig_x',two_fit_pars[3],False),
-		('sig_y',two_fit_pars[4],False), 
-		('theta',two_fit_pars[5],False))
+	plt.figure()
+	plt.plot(ang_scales.arcminute, abs(df_cross.vis)-abs(bg_med),"o", label="data")
+	plt.plot(ang_scales.arcminute, abs(mcg),"r+", label="fit")
+	plt.title("Visibility vs Angular Scale")
+	plt.xlabel("Angular scale (arcminute)")
+	plt.ylabel("Visibility (AU)")
+	plt.xscale("log")
+	plt.legend()
 
-
-	emcee_lm_result = gmodel.fit(df_cross.bg_vis, u=df_cross.u, v=df_cross.v, params=mc_fit_params, weights=df_cross.weight,method='emcee')
-	emcee_lm_pars = emcee_lm_result.params 
-	print("finished emcee lmfit")
-	lm_result = gmodel.fit(df_cross.bg_vis, u=df_cross.u, v=df_cross.v, params=mc_fit_params, weights=df_cross.weight)
-	lm_pars = lm_result.params 
-	# arr_size = 10000
-	# u_arr = np.arange(df_cross.u.min(),df_cross.u.max(),(df_cross.u.max()-df_cross.u.min())/arr_size )
-	# v_arr = np.arange(df_cross.v.min(),df_cross.v.max(),(df_cross.v.max()-df_cross.v.min())/arr_size )
-	# uv_mesh = np.meshgrid(u_arr,v_arr) 
+	arr_size = 10000
+	u_arr = np.arange(df_cross.u.min(),df_cross.u.max(),(df_cross.u.max()-df_cross.u.min())/arr_size )
+	v_arr = np.arange(df_cross.v.min(),df_cross.v.max(),(df_cross.v.max()-df_cross.v.min())/arr_size )
+	uv_mesh = np.meshgrid(u_arr,v_arr) 
 	x_arr = np.arange(-2*0.0142739,2*0.0142739,2*1.39e-5)
 	y_arr = np.arange(-2*0.0142739,2*0.0142739,2*1.39e-5)
 	xy_mesh = np.meshgrid(x_arr,y_arr) 
@@ -363,23 +351,15 @@ for t in range(0,3):
 	two_fit_I = gauss_I_theta(xy_mesh[0], xy_mesh[1], *two_fit_pars)
 
 
-# fig, ax = plt.subplots() 
-# ax.imshow(two_fit_I, origin='lower',extent=[Angle(x_arr[0]*u.rad).arcsec, Angle(x_arr[-1]*u.rad).arcsec,
-# 	Angle(y_arr[0]*u.rad).arcsec, Angle(y_arr[-1]*u.rad).arcsec])
-# limb = Circle((0,0),Angle(15*u.arcmin).arcsec, color='r', fill=False)
-# ax.add_patch(limb)
-# plt.xlabel("X (arcsec)")
-# plt.ylabel("Y (arcsec)")
-# plt.title("mcmc_recreate_{}_fit".format(str(i)))
-# plt.savefig("/Users/murphp30/Documents/Postgrad/useful_images/mcmc_recreate_{}_fit.png".format(str(i)))
-# 	i+=1
-# # plt.figure()
-# plt.scatter(df_cross.u, df_cross.v,c=abs(df_cross.vis))
-# plt.imshow(mcg, aspect="auto", origin="lower", vmin=abs(df_cross.vis).min(),
-# 	vmax=abs(df_cross.vis).max(), extent=[u_arr[0], u_arr[-1], v_arr[0], v_arr[-1]])
-
-
-
+	fig, ax = plt.subplots() 
+	ax.imshow(two_fit_I, origin='lower',extent=[Angle(x_arr[0]*u.rad).arcsec, Angle(x_arr[-1]*u.rad).arcsec,
+		Angle(y_arr[0]*u.rad).arcsec, Angle(y_arr[-1]*u.rad).arcsec])
+	limb = Circle((0,0),Angle(15*u.arcmin).arcsec, color='r', fill=False)
+	ax.add_patch(limb)
+	plt.xlabel("X (arcsec)")
+	plt.ylabel("Y (arcsec)")
+	plt.title("mcmc_recreate_{}_fit".format(str(i)))
+	# plt.savefig("/Users/murphp30/Documents/Postgrad/useful_images/mcmc_recreate.png")
 
 ts = time.time()-t0
 print("Time to run:", ts)
