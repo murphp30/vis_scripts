@@ -39,10 +39,11 @@ def poly_area(vs):
 
 def LOFAR_to_sun(smap):
     obs_coord = SkyCoord(smap.reference_coordinate, distance=sun.earth_distance(smap.date),obstime=smap.date)
-    rot_ang = sun.P(smap.date) 
-    smap_rot = smap.rotate(angle=-rot_ang)
-    smap_out_head = header_helper.make_fitswcs_header(smap_rot.data,obs_coord.transform_to(frames.Helioprojective),
-            u.Quantity(smap_rot.reference_pixel),u.Quantity(smap_rot.scale))
+    rot_ang = 0#sun.P(smap.date) 
+    smap_rot = smap.rotate(angle=rot_ang)
+    smap_out_head = header_helper.make_fitswcs_header(smap_rot.data, obs_coord.transform_to(frames.Helioprojective),
+            u.Quantity(smap_rot.reference_pixel), u.Quantity(smap_rot.scale))
+    smap_out_head['cdelt1'] = abs(smap_out_head['cdelt1']) #make sure axis increases properly (is this right?)
     smap_out = sunpy.map.Map(smap_rot.data, smap_out_head,plot_settings={'cmap':'viridis'})
     smap_out.meta['wavelnth'] = smap.meta['crval3']/1e6
     smap_out.meta['waveunit'] = "MHz"
@@ -212,7 +213,7 @@ if __name__ == "__main__":
     helio_smap.plot(cmap='viridis')
     helio_smap.draw_limb(color='r')
     plt.savefig(out_png)
-    
+    plt.show()
     #pdb.set_trace()
     """
     popt = gauss_params(data,axis_x)

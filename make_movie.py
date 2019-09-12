@@ -26,7 +26,7 @@ frame = cv2.imread(image_path)
 cv2.imshow('video', frame)
 height, width, channels = frame.shape
 
-fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+fourcc = cv2.VideoWriter_fourcc(*'MP4V')
 out = cv2.VideoWriter(output, fourcc, 10., (width, height))
 
 for image in images:

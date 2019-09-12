@@ -192,7 +192,7 @@ def plot_bf(f,oplotx=0, oploty=0,out="default"):
 
         ax.xaxis_date()
         cbar = fig.colorbar(im, ax=ax)
-        cbar.set_label("Power", rotation=90)
+        cbar.set_label("Intensity (background subtracted)", rotation=90)
         date_format = dates.DateFormatter("%H:%M:%S")
         ax.xaxis.set_major_formatter(date_format)
 
@@ -367,7 +367,7 @@ def onclick(event):
     global coords
     coords.append((ix, iy))
 
-    if len(coords) == 10:
+    if len(coords) == 1:
         fig.canvas.mpl_disconnect(cid)
 
     return coords
@@ -401,9 +401,10 @@ if __name__ == "__main__":
     #pdb.set_trace()
     #pdb.set_trace()
     #I_data, freq, t_arr = get_data(bf_file)
-    I_data = I_data[:,1000:4698] #noise above 1000 and no burst below 4698
-    freq = freq[1000:4698]
-    bg_sub = I_data/np.mean(I_data[:475], axis=0)
+    I_data = I_data[:,1000:]#4698] #noise above 1000 and no burst below 4698
+    freq = freq[1000:]#4698]
+    # bg_sub = I_data/np.mean(I_data[:475], axis=0)
+    I_data = I_data/np.mean(I_data[:475], axis=0)
 #    plt.plot(I_data[:,2111])
 #    plt.axvline(x=get_burst_start(I_data,t_arr,2111), color='r')
 #    plt.axvline(x=get_burst_start(I_data, t_arr,2111)+200, color='r')
@@ -490,38 +491,21 @@ if __name__ == "__main__":
     
     click_tarr = np.array([2336, 2261, 2323, 2200, 2287, 2225, 2159, 2156, 2155, 2159])
     click_freq = np.array([965,991, 1025, 1222,1300,1472,1664, 1708, 1773, 1796])
+    
+    #click_tarr = np.array([2200])
+    #click_freq = np.array([1222])
     #for i in range(len(coords)):
     #    click_tarr[i] = t_arr_start + int(np.round(coords[i][0]))
     #    click_freq[i] = int(np.round(coords[i][1]))
-    
+    np.savez("striae/clicks/click_locations.npz",click_tarr, click_freq) 
 
     #actual locations of clicks
     striae_tarr = t_arr[click_tarr]
     striae_freq = freq[click_freq]
    
     striae_dt = bf_start + striae_tarr*timedelta(seconds=1)
-    """
-    fig, ax = plt.subplots()
-    im = ax.imshow(I_data.T, aspect='auto', vmin=np.percentile(I_data, 1), vmax=np.percentile(I_data, 99), extent=[times[0],times[-1], freq[-1], freq[0]])
-    ax.scatter(dates.date2num(striae_dt), striae_freq, color='r')
-    #ax.xaxis_date()
-    
-    #bg_datetime_end = datetime(2015,10,17,13,21,40,0)
-    #bg_datetime_end = dates.date2num(bg_datetime_end)
-    #ax.axvline(x=bg_datetime_end)
     
     
-    cbar = fig.colorbar(im, ax=ax)
-    cbar.set_label("Power", rotation=90)
-    date_format = dates.DateFormatter("%H:%M:%S")
-    #ax.xaxis.set_major_formatter(date_format)
-    
-    plt.title("Dynamic Spectrum of Sun")
-    plt.xlabel("Time (UTC) ")
-    plt.ylabel("Frequency (MHz)")
-    plt.tight_layout()
-    plt.show()
-    """
     
     #plt.savefig("d_spec_click.png")
    
@@ -538,6 +522,7 @@ if __name__ == "__main__":
     writing....
 
     """
+    
     d_f = freq[1]-freq[0] 
     #del_f = d_f*props["widths"]
     #f = freq[striae]
@@ -548,73 +533,74 @@ if __name__ == "__main__":
     #bg_sub = savgol_filter(bg_sub, 15, 4)
     mus = np.zeros(len(click_freq))
     sigs = np.zeros(len(click_freq))
-    for ck in range(len(click_freq)):
-        if (click_freq[ck] - bg_len) > 0:
-            #click_max = np.max(bg_sub[click_tarr[ck],click_freq[ck]-bg_len:click_freq[ck]+bg_len]) #max value near click
-            #max_loc = np.where(bg_sub[click_tarr[ck],click_freq[ck]-bg_len:click_freq[ck]+bg_len] == click_max)
-            #max_loc = click_freq[ck] - bg_len + max_loc
-            #click_freq[ck] = max_loc
-            #striae_freq[ck] = freq[max_loc]
-            popt,pcov = opt.curve_fit(gauss_1D, freq[click_freq[ck]-bg_len:click_freq[ck]+bg_len], 
-                bg_sub[click_tarr[ck],click_freq[ck]-bg_len:click_freq[ck]+bg_len],
-                p0=[bg_sub[click_tarr[ck],click_freq[ck]], striae_freq[ck],0.01],
-                bounds=([0,striae_freq[ck]-.1,0],[np.inf,striae_freq[ck]+.1,sig_bound]))
-            gauss1 = gauss_1D(freq[click_freq[ck]-bg_len:click_freq[ck]+bg_len], popt[0], popt[1], popt[2])
-            plt.figure()
-            plt.plot(freq[click_freq[ck]-bg_len:click_freq[ck]+bg_len], bg_sub[click_tarr[ck],click_freq[ck]-bg_len:click_freq[ck]+bg_len]) 
-            plt.plot(striae_freq[ck], bg_sub[click_tarr[ck],click_freq[ck]], 'ro')
-            plt.plot(freq[click_freq[ck]-bg_len:click_freq[ck]+bg_len],gauss1)  
+#     for ck in range(len(click_freq)):
+#         if (click_freq[ck] - bg_len) > 0:
+#             #click_max = np.max(bg_sub[click_tarr[ck],click_freq[ck]-bg_len:click_freq[ck]+bg_len]) #max value near click
+#             #max_loc = np.where(bg_sub[click_tarr[ck],click_freq[ck]-bg_len:click_freq[ck]+bg_len] == click_max)
+#             #max_loc = click_freq[ck] - bg_len + max_loc
+#             #click_freq[ck] = max_loc
+#             #striae_freq[ck] = freq[max_loc]
+#             popt,pcov = opt.curve_fit(gauss_1D, freq[click_freq[ck]-bg_len:click_freq[ck]+bg_len], 
+#                 bg_sub[click_tarr[ck],click_freq[ck]-bg_len:click_freq[ck]+bg_len],
+#                 p0=[bg_sub[click_tarr[ck],click_freq[ck]], striae_freq[ck],0.01],
+#                 bounds=([0,striae_freq[ck]-.1,0],[np.inf,striae_freq[ck]+.1,sig_bound]))
+#             gauss1 = gauss_1D(freq[click_freq[ck]-bg_len:click_freq[ck]+bg_len], popt[0], popt[1], popt[2])
+#             plt.figure()
+#             plt.plot(freq[click_freq[ck]-bg_len:click_freq[ck]+bg_len], bg_sub[click_tarr[ck],click_freq[ck]-bg_len:click_freq[ck]+bg_len]) 
+#             plt.plot(striae_freq[ck], bg_sub[click_tarr[ck],click_freq[ck]], 'ro')
+#             plt.plot(freq[click_freq[ck]-bg_len:click_freq[ck]+bg_len],gauss1)  
+           
+#             plt.title("Striae at {} MHz".format(striae_freq[ck]))
+#             plt.xlabel("Frequency (MHz)")
+#             plt.ylabel("Power (bg subtracted)")
+#             plt.savefig("striae/Striae_{}_MHz.png".format(striae_freq[ck]))
+#         elif (click_freq[ck] - bg_len) < 0:
+#             #click_max = np.max(bg_sub[click_tarr[ck],:click_freq[ck]+bg_len]) #max value near click
+#             #max_loc = np.where(bg_sub[click_tarr[ck],:click_freq[ck]+bg_len] == click_max)[0]
+# #            max_loc = bg_len + max_loc
+#             #click_freq[ck] = max_loc
+#             #striae_freq[ck] = freq[max_loc]
+#             popt,pcov = opt.curve_fit(gauss_1D, freq[:click_freq[ck]+bg_len], 
+#                 bg_sub[click_tarr[ck],:click_freq[ck]+bg_len],
+#                 p0=[bg_sub[click_tarr[ck],click_freq[ck]], striae_freq[ck],0.01],
+#                 bounds=([0,striae_freq[ck]-.1,0],[np.inf,striae_freq[ck]+.1,sig_bound]))
             
-            plt.title("Striae at {} MHz".format(striae_freq[ck]))
-            plt.xlabel("Frequency (MHz)")
-            plt.ylabel("Power (bg subtracted)")
-            plt.savefig("Striae_{}_MHz.png".format(striae_freq[ck]))
-        elif (click_freq[ck] - bg_len) < 0:
-            #click_max = np.max(bg_sub[click_tarr[ck],:click_freq[ck]+bg_len]) #max value near click
-            #max_loc = np.where(bg_sub[click_tarr[ck],:click_freq[ck]+bg_len] == click_max)[0]
-#            max_loc = bg_len + max_loc
-            #click_freq[ck] = max_loc
-            #striae_freq[ck] = freq[max_loc]
-            popt,pcov = opt.curve_fit(gauss_1D, freq[:click_freq[ck]+bg_len], 
-                bg_sub[click_tarr[ck],:click_freq[ck]+bg_len],
-                p0=[bg_sub[click_tarr[ck],click_freq[ck]], striae_freq[ck],0.01],
-                bounds=([0,striae_freq[ck]-.1,0],[np.inf,striae_freq[ck]+.1,sig_bound]))
-            
- #           pdb.set_trace() 
-            gauss1 = gauss_1D(freq[:click_freq[ck]+bg_len], popt[0], popt[1], popt[2])
-            plt.figure()
-            plt.plot(freq[:click_freq[ck]+bg_len], bg_sub[click_tarr[ck],:click_freq[ck]+bg_len]) 
-            plt.plot(striae_freq[ck], bg_sub[click_tarr[ck],click_freq[ck]], 'ro')
-            plt.plot(freq[:click_freq[ck]+bg_len],gauss1)  
-            plt.title("Striae at {} MHz".format(striae_freq[ck]))
-            plt.xlabel("Frequency (MHz)")
-            plt.ylabel("Power (bg subtracted)")
-            plt.savefig("Striae_{}_MHz.png".format(striae_freq[ck]))
-        elif (click_freq[ck] + bg_len) > len(f):
-            #click_max = np.max(bg_sub[click_tarr[ck],click_freq[ck]-bg_len:]) #max value near click
-            #max_loc = np.where(bg_sub[click_tarr[ck],click_freq[ck]-bg_len:] == click_max)
-            #max_loc = click_freq[ck] - bg_len + max_loc
-            #click_freq[ck] = max_loc
-            #striae_freq[ck] = freq[max_loc]
-            popt,pcov = opt.curve_fit(gauss_1D, freq[click_freq[ck]-bg_len:], 
-                bg_sub[click_tarr[ck],click_freq[ck]-bg_len:],
-                p0=[bg_sub[click_tarr[ck],click_freq[ck]], striae_freq[ck],0.01],
-                bounds=([0,striae_freq[ck]-.1,0],[np.inf,striae_freq[ck]+.1,sig_bound]))
+#  #           pdb.set_trace() 
+#             gauss1 = gauss_1D(freq[:click_freq[ck]+bg_len], popt[0], popt[1], popt[2])
+#             plt.figure()
+#             plt.plot(freq[:click_freq[ck]+bg_len], bg_sub[clck_tarr[ck],:click_freq[ck]+bg_len]) 
+#             plt.plot(striae_freq[ck], bg_sub[click_tarr[ck],click_freq[ck]], 'ro')
+#             plt.plot(freq[:click_freq[ck]+bg_len],gauss1)  
+#             plt.title("Striae at {} MHz".format(striae_freq[ck]))
+#             plt.xlabel("Frequency (MHz)")
+#             plt.ylabel("Power (bg subtracted)")
+#             plt.savefig("striae/Striae_{}_MHz.png".format(striae_freq[ck]))
+#         elif (click_freq[ck] + bg_len) > len(f):
+#             #click_max = np.max(bg_sub[click_tarr[ck],click_freq[ck]-bg_len:]) #max value near click
+#             #max_loc = np.where(bg_sub[click_tarr[ck],click_freq[ck]-bg_len:] == click_max)
+#             #max_loc = click_freq[ck] - bg_len + max_loc
+#             #click_freq[ck] = max_loc
+#             #striae_freq[ck] = freq[max_loc]
+#             popt,pcov = opt.curve_fit(gauss_1D, freq[click_freq[ck]-bg_len:], 
+#                 bg_sub[click_tarr[ck],click_freq[ck]-bg_len:],
+#                 p0=[bg_sub[click_tarr[ck],click_freq[ck]], striae_freq[ck],0.01],
+#                 bounds=([0,striae_freq[ck]-.1,0],[np.inf,striae_freq[ck]+.1,sig_bound]))
         
-            gauss1 = gauss_1D(freq[click_freq[ck]-bg_len:], popt[0], popt[1], popt[2])
-            plt.figure()
-            plt.plot(freq[click_freq[ck]-bg_len:], bg_sub[click_tarr[ck],click_freq[ck]-bg_len:]) 
-            plt.plot(striae_freq[ck], bg_sub[click_tarr[ck],click_freq[ck]], 'ro')
-            plt.plot(freq[click_freq[ck]-bg_len:],gauss1)  
-            plt.title("Striae at {} MHz".format(striae_freq[ck]))
-            plt.xlabel("Frequency (MHz)")
-            plt.ylabel("Power (bg subtracted)")
-            plt.savefig("Striae_{}_MHz.png".format(striae_freq[ck]))
-        mus[ck] = popt[1]
-        sigs[ck] = popt[2]
-    plt.close('all')
-    np.save('striae_centres',mus)
-    np.save('striae_widths', sigs)
+#             gauss1 = gauss_1D(freq[click_freq[ck]-bg_len:], popt[0], popt[1], popt[2])
+#             plt.figure()
+#             plt.plot(freq[click_freq[ck]-bg_len:], bg_sub[click_tarr[ck],click_freq[ck]-bg_len:]) 
+#             plt.plot(striae_freq[ck], bg_sub[click_tarr[ck],click_freq[ck]], 'ro')
+#             plt.plot(freq[click_freq[ck]-bg_len:],gauss1)  
+#             plt.title("Striae at {} MHz".format(striae_freq[ck]))
+#             plt.xlabel("Frequency (MHz)")
+#             plt.ylabel("Power (bg subtracted)")
+#             plt.savefig("striae/Striae_{}_MHz.png".format(striae_freq[ck]))
+#         mus[ck] = popt[1]
+#         sigs[ck] = popt[2]
+# #    plt.close('all')
+#     np.save('striae_centres',mus)
+#     np.save('striae_widths', sigs)
+    
     #pdb.set_trace()
     with open("SB_to_freqs.txt", "r") as sbs:
         sbs_str = sbs.read()
@@ -627,7 +613,41 @@ if __name__ == "__main__":
         freq_s = sbs_list[i].find("TOPO") + 4
         freq_e = sbs_list[i].find("195.312")
         int_freqs[i] = float(sbs_list[i][freq_s:freq_e])
+    np.save("int_freqs", int_freqs)
+#    fig, ax = plt.subplots()
+#    im = ax.imshow(I_data.T, aspect='auto', vmin=np.percentile(I_data, 1), vmax=np.percentile(I_data, 99), extent=[times[0],times[-1], freq[-1], freq[0]])
+#    for i_f in int_freqs:
+#        if i_f < freq[-1]:
+#           ax.scatter(times[1000],i_f, color='r')
+#            # ax.axhline(y=i_f, color='r')
 
+    fig, ax = plt.subplots()
+    #a couple of magic numbers to zoom in on clicked region
+    im = ax.imshow(I_data[2000:2500,900:1900].T, aspect='auto', vmin=np.percentile(I_data[2000:2500,900:1900], 1), vmax=np.percentile(I_data[2000:2500,900:1900], 99), extent=[times[2000],times[2500], freq[1900], freq[900]])
+    ax.scatter(dates.date2num(striae_dt), striae_freq, color='r')
+    ax.xaxis_date()
+    
+    for i_f in int_freqs:
+        if i_f > freq[900] and i_f < freq[1900]:
+    #       ax.scatter(times[2250],i_f, color='r',marker='.')
+           ax.axhline(y=i_f, color='r')
+    #bg_datetime_end = datetime(2015,10,17,13,21,40,0)
+    #bg_datetime_end = dates.date2num(bg_datetime_end)
+    #ax.axvline(x=bg_datetime_end)
+    
+    
+    cbar = fig.colorbar(im, ax=ax)
+    cbar.set_label("Intensity (au)", rotation=90)
+    date_format = dates.DateFormatter("%H:%M:%S")
+    #ax.xaxis.set_major_formatter(date_format)
+    
+    plt.title("Zoom in of Striated Burst")
+    plt.xlabel("Time (UTC) ")
+    plt.ylabel("Frequency (MHz)")
+    plt.tight_layout()
+    #plt.savefig("burst2_zoom.png")
+    #plot_bf(bf_file)
+    plt.show()
     striae_SB = np.zeros(len(click_freq))#np.zeros(len(f))
     """
     for i in range(len(striae_SB)):
@@ -684,7 +704,7 @@ if __name__ == "__main__":
     data_column = "-data-column"
     data_column_val = "CORRECTED_DATA"
     intervals_out = "-intervals-out"
-    intervals_out_val = "20" 
+    intervals_out_val = "80"#"20" 
     interval = "-interval"
     use_diff_lofar_beam = "-use-differential-lofar-beam"
     multiscale = "-multiscale"
@@ -693,7 +713,7 @@ if __name__ == "__main__":
     beamfitsize = "-beam-fitting-size"
     beamfitsize_val ="4"
     niter = "-niter"
-    niter_val = "5000"
+    niter_val = "0"
     auto_threshold = "-auto-threshold"
     auto_threshold_val = "3"
     circular_beam = "-circularbeam"
@@ -701,7 +721,7 @@ if __name__ == "__main__":
     name = "-name"
     
     i_sb = 0
-    
+    striae_SB = np.arange(239,244)
     for SB in striae_SB:
         l = c.value/(int_freqs[int(SB)]*1e6)
         B = 84974.55079 #gotten manually from msoverview verbose
@@ -712,8 +732,11 @@ if __name__ == "__main__":
         im_pix_width = im_ang_width/(theta_deg.to(u.arcsec)/4)
         #interval_start = int(t_arr[onset[int(SB)]]/int_dt)
         #pdb.set_trace()
-        interval_start = int(striae_tarr[i_sb]/int_dt)-10
-        interval_end = int(striae_tarr[i_sb]/int_dt) +10 #interval_start + 10 #only image one time sample
+        """
+        Intervals found by eye :/
+        """
+        interval_start = 77092#int(np.round(striae_tarr[i_sb]/int_dt))-20
+        interval_end = 77092+80#int(np.round(striae_tarr[i_sb]/int_dt)) + 20 #interval_start + 10 #only image one time sample
         
         #adjust values to run with subprocess
 
@@ -725,9 +748,10 @@ if __name__ == "__main__":
             scale_val = str(scale_val)+"0asec"
         else:
             scale_val = str(scale_val)+"asec"
-        name_val = "striae/clicks/burst2/SB{}/wsclean-SB{}".format(str(int(SB)).zfill(3),str(int(SB)).zfill(3))
+        name_val = "dirty_images/SB{}/wsclean-SB{}".format(str(int(SB)).zfill(3),str(int(SB)).zfill(3))#"striae/all/burst2/SB{}/wsclean-SB{}".format(str(int(SB)).zfill(3),str(int(SB)).zfill(3))
         ms = "/mnt/murphp30_data/typeIII_int/L401003_SB{}_uv.dppp.MS".format(str(int(SB)).zfill(3))
         #pdb.set_trace()
+        
         try:
             print(["wsclean", j, j_val, mem, mem_val, no_reorder,
             no_update_model_required, weight, briggs, briggs_val, mgain,
@@ -760,4 +784,6 @@ if __name__ == "__main__":
         #    plot_one(name_val+"-{}.fits".format(filetype))
         #    plt.savefig(name_val+"-{}.png".format(filetype))
         #    plt.close()
-     
+        
+        i_sb+=1
+        
