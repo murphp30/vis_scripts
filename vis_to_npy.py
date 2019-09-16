@@ -108,14 +108,14 @@ def get_MS_data(SB,t_start, t_end):
 	return outfile, freq, times, dt,sb_width,uvws,ant0,ant1,data,vis,weights#,mdl,eig_max
 
 
-for i in range(76,77):
-	SB = "L401003_SB{}_uv.dppp.MS/".format(str(int(i)).zfill(3))
-	t_start ="2015-10-17T13:21:40.000"#"2015-10-17T13:21:53.900" #"2015-10-17T12:00:00"#"2015-10-17T13:21:20" #"2015-10-17T13:21:53"
-	t_end = "2015-10-17T13:22:00.000"#"2015-10-17T13:21:54.000"#"2015-10-17T12:00:05"#"2015-10-17T13:22:00"#"2015-10-17T13:23:00"
-	print("Saving for " + SB)
-
-	outfile, freq, times, dt,sb_width,uvws,ant0,ant1,data,vis,weights = get_MS_data(SB, t_start,t_end)
-	np.savez(outfile, freq=freq, times=times, dt=dt, df=sb_width, uvws=uvws, ant0=ant0, ant1=ant1, data=data,vis=vis, weights=weights)
+#for i in range(16,244):
+#	SB = "L401003_SB{}_uv.dppp.MS/".format(str(int(i)).zfill(3))
+#	t_start ="2015-10-17T13:21:40.000"#"2015-10-17T13:21:53.900" #"2015-10-17T12:00:00"#"2015-10-17T13:21:20" #"2015-10-17T13:21:53"
+#	t_end = "2015-10-17T13:22:00.000"#"2015-10-17T13:21:54.000"#"2015-10-17T12:00:05"#"2015-10-17T13:22:00"#"2015-10-17T13:23:00"
+#	print("Saving for " + SB)
+#
+#	outfile, freq, times, dt,sb_width,uvws,ant0,ant1,data,vis,weights = get_MS_data(SB, t_start,t_end)
+#	np.savez(outfile, freq=freq, times=times, dt=dt, df=sb_width, uvws=uvws, ant0=ant0, ant1=ant1, data=data,vis=vis, weights=weights)
 
 
 
