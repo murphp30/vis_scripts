@@ -60,13 +60,13 @@ def residual_abs(pars, u,v, data, weights=None):
 	sig_y = parvals['sig_y']
 	theta = parvals['theta']
 
-	model = abs(gauss_2D(u,v,I0,x0,y0,sig_x,sig_y,theta))
+	model = gauss_2D(u,v,I0,x0,y0,sig_x,sig_y,theta)
 	
 	if weights is None:
 		resid = model - abs(data) #np.sqrt((np.real(model) - np.real(data))**2 + (np.imag(model) - np.imag(data))**2)
 	else:
 		resid = (model - abs(data))*weights#np.sqrt((np.real(model) - np.real(data))**2 + (np.imag(model) - np.imag(data))**2)*weights
-	return resid#np.sqrt(resid.real**2 +resid.imag**2)
+	return resid.real#np.sqrt(resid.real**2 +resid.imag**2)
 
 def residual_pos(pars, u,v, data, weights=None):
 	parvals = pars.valuesdict()
@@ -83,7 +83,7 @@ def residual_pos(pars, u,v, data, weights=None):
 		resid = model - data #np.sqrt((np.real(model) - np.real(data))**2 + (np.imag(model) - np.imag(data))**2)
 	else:
 		resid = (model - data)*weights#np.sqrt((np.real(model) - np.real(data))**2 + (np.imag(model) - np.imag(data))**2)*weights
-	return np.sqrt(resid.real**2 +resid.imag**2)
+	return resid.real#np.sqrt(resid.real**2 +resid.imag**2)
 
 def lnlike(pars, u,v,vis,weights):
 	I0,x0,y0,sig_x,sig_y,theta = pars
@@ -121,8 +121,15 @@ def lnprob(pars, u,v,vis,weights):
 	return lp + lnlike(pars, u,v,vis,weights)
 
 def lnlike_real(pars, u,v,vis,weights):
-	x0, y0 = pars
-	I0, sig_x, sig_y, theta = [*mc_pars[1]]	
+	# x0, y0 = pars
+	# I0, sig_x, sig_y, theta = [*mc_pars[1]]	
+	parvals = pars.valuesdict()
+	I0 = parvals['I0']
+	x0 = parvals['x0']
+	y0 = parvals['y0']
+	sig_x = parvals['sig_x']
+	sig_y = parvals['sig_y']
+	theta = parvals['theta']	
 	u_p,v_p  =  u*np.cos(theta)+v*np.sin(theta),-u*np.sin(theta)+v*np.cos(theta)
 	x0_p, y0_p = rotate_coords(x0,y0,theta)
 	model = (I0/(2*np.pi)) * np.exp(-2*np.pi*1j*(u_p*x0_p+v_p*y0_p)) \
@@ -130,7 +137,7 @@ def lnlike_real(pars, u,v,vis,weights):
 	inv_sigma2 = weights 
 	# phs_model = np.arctan(np.imag(model)/np.real(model))
 	# phs_vis = np.arctan(np.imag(vis)/np.real(vis))
-	return -0.5*(np.sum((np.real(vis) - np.real(model))**2*inv_sigma2 - np.log(inv_sigma2)))
+	return -0.5*(((np.real(vis) - np.real(model))**2*inv_sigma2 - np.log(inv_sigma2)))
 
 def lnprior_real(pars,vis):
 	x0, y0 = pars 
@@ -149,12 +156,19 @@ def lnprob_real(pars, u,v,vis,weights):
 	return lp + lnlike_real(pars, u,v,vis,weights)
 
 def lnlike_abs(pars, u,v,vis,weights):
-	I0,sig_x,sig_y,theta = pars
+	#I0,sig_x,sig_y,theta = pars
+	parvals = pars.valuesdict()
+	I0 = parvals['I0']
+	x0 = parvals['x0']
+	y0 = parvals['y0']
+	sig_x = parvals['sig_x']
+	sig_y = parvals['sig_y']
+	theta = parvals['theta']
 	u_p,v_p  =  u*np.cos(theta)+v*np.sin(theta),-u*np.sin(theta)+v*np.cos(theta)
 	model = abs((I0/(2*np.pi)) * np.exp(-(((sig_x**2)*((2*np.pi*u_p)**2))/2) - (((sig_y**2)*((2*np.pi*v_p)**2))/2)))
 	inv_sigma2 = weights 
 
-	return -0.5*(np.sum((vis-model)**2*inv_sigma2 - np.log(inv_sigma2)))
+	return -0.5*(((abs(vis)-model)**2*inv_sigma2 - np.log(inv_sigma2)))
 
 def lnprior_abs(pars,vis):
 	I0,sig_x,sig_y,theta = pars 
@@ -502,10 +516,10 @@ sun_pos = SkyCoord(vis.sun_dir[0].rad, vis.sun_dir[1].rad, unit="rad")
 
 I_fit = gauss_I_theta(xy_mesh[0], xy_mesh[1], val_dict['I0'], val_dict['x0'], val_dict['y0'], 
 	val_dict['sig_x'], val_dict['sig_y'], val_dict['theta'])
-# fig, ax = plt.subplots()
-# ax.imshow(I_fit, aspect='equal', origin='lower', extent=[x_arr[0], x_arr[-1], y_arr[0], y_arr[-1]])
-# s = Circle((vis.solar_ra_offset.rad,vis.solar_dec_offset.rad),vis.solar_rad.rad, color='r', fill=False)
-# ax.add_patch(s)
+fig, ax = plt.subplots()
+ax.imshow(I_fit, aspect='equal', origin='lower', extent=[x_arr[0], x_arr[-1], y_arr[0], y_arr[-1]])
+s = Circle((vis.solar_ra_offset.rad,vis.solar_dec_offset.rad),vis.solar_rad.rad, color='r', fill=False)
+ax.add_patch(s)
 
 gm_fit = gauss_2D(uv_mesh[0], uv_mesh[1], val_dict['I0'], val_dict['x0'], val_dict['y0'], 
 	val_dict['sig_x'], val_dict['sig_y'], val_dict['theta'])
