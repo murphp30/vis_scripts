@@ -51,39 +51,77 @@ def gauss_2D(u,v,I0,x0,y0,sig_x,sig_y,theta):
 	
 	return V
 
-def residual_abs(pars, u,v, data, weights=None):
+def residual_abs(pars, u,v, data, weights=None, ngauss=1):
 	parvals = pars.valuesdict()
-	I0 = parvals['I0']
-	x0 = 0#parvals['x0']
-	y0 = 0#parvals['y0']
-	sig_x = parvals['sig_x']
-	sig_y = parvals['sig_y']
-	theta = parvals['theta']
+	if ngauss == 1:
+		I0 = parvals['I0']
+		x0 = 0#parvals['x0']
+		y0 = 0#parvals['y0']
+		sig_x = parvals['sig_x']
+		sig_y = parvals['sig_y']
+		theta = parvals['theta']
 
-	model = gauss_2D(u,v,I0,x0,y0,sig_x,sig_y,theta)
-	
-	if weights is None:
-		resid = model - abs(data) #np.sqrt((np.real(model) - np.real(data))**2 + (np.imag(model) - np.imag(data))**2)
+		model = gauss_2D(u,v,I0,x0,y0,sig_x,sig_y,theta)
+	elif ngauss == 2:
+		I0 = parvals['I0']
+		x0 = 0#parvals['x0']
+		y0 = 0#parvals['y0']
+		sig_x0 = parvals['sig_x0']
+		sig_y0 = parvals['sig_y0']
+		theta0 = parvals['theta0']
+		I1 = parvals['I1']
+		x1 = 0#parvals['x0']
+		y1 = 0#parvals['y0']
+		sig_x1 = parvals['sig_x1']
+		sig_y1 = parvals['sig_y1']
+		theta1 = parvals['theta1']
+
+		model = gauss_2D(u,v,I0,x0,y0,sig_x0,sig_y0,theta0) + gauss_2D(u,v,I1,x1,y1,sig_x1,sig_y1,theta1)
 	else:
-		resid = (model - abs(data))*weights#np.sqrt((np.real(model) - np.real(data))**2 + (np.imag(model) - np.imag(data))**2)*weights
-	return resid.real#np.sqrt(resid.real**2 +resid.imag**2)
+		print("Must have max 2 gauss (for now)")
+		return
 
-def residual_pos(pars, u,v, data, weights=None):
+	if weights is None:
+		resid = model - data #np.sqrt((np.real(model) - np.real(data))**2 + (np.imag(model) - np.imag(data))**2)
+	else:
+		resid = (abs(model) - abs(data))*weights#np.sqrt((np.real(model) - np.real(data))**2 + (np.imag(model) - np.imag(data))**2)*weights
+	return resid#np.sqrt(resid.real**2 +resid.imag**2)
+
+def residual_pos(pars, u,v, data, weights=None, ngauss=1):
 	parvals = pars.valuesdict()
-	I0 = parvals['I0']
-	x0 = parvals['x0']
-	y0 = parvals['y0']
-	sig_x = parvals['sig_x']
-	sig_y = parvals['sig_y']
-	theta = parvals['theta']
+	if ngauss == 1: 
+		I0 = parvals['I0']
+		x0 = parvals['x0']
+		y0 = parvals['y0']
+		sig_x = parvals['sig_x']
+		sig_y = parvals['sig_y']
+		theta = parvals['theta']
 
-	model = gauss_2D(u,v,I0,x0,y0,sig_x,sig_y,theta)
+		model = gauss_2D(u,v,I0,x0,y0,sig_x,sig_y,theta)
+	elif ngauss == 2:
+		I0 = parvals['I0']
+		x0 = parvals['x0']
+		y0 = parvals['y0']
+		sig_x0 = parvals['sig_x0']
+		sig_y0 = parvals['sig_y0']
+		theta0 = parvals['theta0']
+		I1 = parvals['I1']
+		x1 = parvals['x1']
+		y1 = parvals['y1']
+		sig_x1 = parvals['sig_x1']
+		sig_y1 = parvals['sig_y1']
+		theta1 = parvals['theta1']
+
+		model = gauss_2D(u,v,I0,x0,y0,sig_x0,sig_y0,theta0) + gauss_2D(u,v,I1,x1,y1,sig_x1,sig_y1,theta1)
+	else:
+		print("Must have max 2 gauss (for now)")
+		return	
 	
 	if weights is None:
 		resid = model - data #np.sqrt((np.real(model) - np.real(data))**2 + (np.imag(model) - np.imag(data))**2)
 	else:
 		resid = (model - data)*weights#np.sqrt((np.real(model) - np.real(data))**2 + (np.imag(model) - np.imag(data))**2)*weights
-	return resid.real#np.sqrt(resid.real**2 +resid.imag**2)
+	return np.arctan(resid.imag/resid.real)#np.sqrt(resid.real**2 +resid.imag**2)
 
 def lnlike(pars, u,v,vis,weights):
 	I0,x0,y0,sig_x,sig_y,theta = pars
@@ -121,27 +159,39 @@ def lnprob(pars, u,v,vis,weights):
 	return lp + lnlike(pars, u,v,vis,weights)
 
 def lnlike_real(pars, u,v,vis,weights):
-	# x0, y0 = pars
-	# I0, sig_x, sig_y, theta = [*mc_pars[1]]	
-	parvals = pars.valuesdict()
-	I0 = parvals['I0']
-	x0 = parvals['x0']
-	y0 = parvals['y0']
-	sig_x = parvals['sig_x']
-	sig_y = parvals['sig_y']
-	theta = parvals['theta']	
+	# if type(pars) == np.ndarray:
+	x0, y0 = pars
+	I0, sig_x, sig_y, theta = [*mc_pars[1]]	
+	# else:
+	# 	parvals = pars.valuesdict()
+	# 	I0 = parvals['I0']
+	# 	x0 = parvals['x0']
+	# 	y0 = parvals['y0']
+	# 	sig_x = parvals['sig_x']
+	# 	sig_y = parvals['sig_y']
+	# 	theta = parvals['theta']	
 	u_p,v_p  =  u*np.cos(theta)+v*np.sin(theta),-u*np.sin(theta)+v*np.cos(theta)
 	x0_p, y0_p = rotate_coords(x0,y0,theta)
 	model = (I0/(2*np.pi)) * np.exp(-2*np.pi*1j*(u_p*x0_p+v_p*y0_p)) \
 		    * np.exp(-(((sig_x**2)*((2*np.pi*u_p)**2))/2) - (((sig_y**2)*((2*np.pi*v_p)**2))/2))
-	inv_sigma2 = weights 
+	inv_sigma2 = weights
+
+	diff = (vis-model)**2
 	# phs_model = np.arctan(np.imag(model)/np.real(model))
 	# phs_vis = np.arctan(np.imag(vis)/np.real(vis))
-	return -0.5*(((np.real(vis) - np.real(model))**2*inv_sigma2 - np.log(inv_sigma2)))
+	return -0.5*(np.sum(np.arctan(diff.real/diff.imag)*inv_sigma2 - np.log(inv_sigma2)))
 
 def lnprior_real(pars,vis):
+	# if type(pars) == np.ndarray:
 	x0, y0 = pars 
-	
+	# else:
+	# 	parvals = pars.valuesdict()
+	# 	I0 = parvals['I0']
+	# 	x0 = parvals['x0']
+	# 	y0 = parvals['y0']
+	# 	sig_x = parvals['sig_x']
+	# 	sig_y = parvals['sig_y']
+	# 	theta = parvals['theta']
 	sun_diam_rad = Angle(0.5*u.deg).rad
 
 	if -2*sun_diam_rad < x0 < -0.25*sun_diam_rad and \
@@ -156,23 +206,33 @@ def lnprob_real(pars, u,v,vis,weights):
 	return lp + lnlike_real(pars, u,v,vis,weights)
 
 def lnlike_abs(pars, u,v,vis,weights):
-	#I0,sig_x,sig_y,theta = pars
-	parvals = pars.valuesdict()
-	I0 = parvals['I0']
-	x0 = parvals['x0']
-	y0 = parvals['y0']
-	sig_x = parvals['sig_x']
-	sig_y = parvals['sig_y']
-	theta = parvals['theta']
+	# if type(pars) == np.ndarray:
+	I0,sig_x,sig_y,theta = pars
+	# else:
+	# 	parvals = pars.valuesdict()
+	# 	I0 = parvals['I0']
+	# 	x0 = 0#parvals['x0']
+	# 	y0 = 0#parvals['y0']
+	# 	sig_x = parvals['sig_x']
+	# 	sig_y = parvals['sig_y']
+	# 	theta = parvals['theta']
 	u_p,v_p  =  u*np.cos(theta)+v*np.sin(theta),-u*np.sin(theta)+v*np.cos(theta)
-	model = abs((I0/(2*np.pi)) * np.exp(-(((sig_x**2)*((2*np.pi*u_p)**2))/2) - (((sig_y**2)*((2*np.pi*v_p)**2))/2)))
+	model =(I0/(2*np.pi)) * np.exp(-(((sig_x**2)*((2*np.pi*u_p)**2))/2) - (((sig_y**2)*((2*np.pi*v_p)**2))/2))
 	inv_sigma2 = weights 
-
-	return -0.5*(((abs(vis)-model)**2*inv_sigma2 - np.log(inv_sigma2)))
+	diff = (vis-model)**2
+	return -0.5*(np.sum(abs(diff)*inv_sigma2 - np.log(inv_sigma2)))
 
 def lnprior_abs(pars,vis):
-	I0,sig_x,sig_y,theta = pars 
-
+	# if type(pars) == np.ndarray:
+		I0,sig_x,sig_y,theta = pars 
+	else:
+		parvals = pars.valuesdict()
+		I0 = parvals['I0']
+		x0 = parvals['x0']
+		y0 = parvals['y0']
+		sig_x = parvals['sig_x']
+		sig_y = parvals['sig_y']
+		theta = parvals['theta']
 	sun_diam_rad = Angle(0.5*u.deg).rad
 	sig_sun = sun_diam_rad/(2*np.sqrt(2*np.log(2)))
 
@@ -280,19 +340,13 @@ def two_gauss_V(u,v, I0,x0,y0,sig_x0,sig_y0,theta0,I1,x1,y1,sig_x1,sig_y1,theta1
 
 def two_gauss_I(x,y, I0,x0,y0,sig_x0,sig_y0,theta0,I1,x1,y1,sig_x1,sig_y1,theta1):
 	
-	I0 = gauss_I_theta(x,y,I0,x0,y0,sig_x0,sig_y0,theta0)
-	I1 = gauss_I_theta(x,y,I1,x1,y1,sig_x1,sig_y1,theta1)
+	I0 = gauss_I(x,y,I0,x0,y0,sig_x0,sig_y0,theta0)
+	I1 = gauss_I(x,y,I1,x1,y1,sig_x1,sig_y1,theta1)
 
 	I = I0 + I1
 	return I
 
-def gauss_I(x,y,I0,x0,y0,sig_x,sig_y):
-
-	I = (I0/(2*np.pi*sig_x*sig_y)) * np.exp( -( (x-x0)**2/(2*(sig_x**2)) ) - ( (y-y0)**2/(2*(sig_y**2)) ) )
-
-	return I
-
-def gauss_I_theta(x,y,I0,x0,y0,sig_x,sig_y,theta):
+def gauss_I(x,y,I0,x0,y0,sig_x,sig_y,theta):
 	
 	a = ((np.cos(theta)**2)/(2*sig_x**2)) + ((np.sin(theta)**2)/(2*sig_y**2))
 	b = -((np.sin(2*theta))/(4*sig_x**2)) + ((np.sin(2*theta))/(4*sig_y**2))
@@ -466,95 +520,204 @@ scatter_diam = Angle(10*u.arcmin).rad
 sig_scatter = scatter_diam/(2*np.sqrt(2*np.log(2)))
 
 sig_x_guess = sig_sun
-sig_y_guess = sig_sun
+sig_y_guess = 0.625*sig_sun
 
+x1_guess = Angle(6*u.arcmin).rad
+y1_guess = Angle(7*u.arcmin).rad
+sig_x1_guess = x1_guess/(2*np.sqrt(2*np.log(2)))
+sig_y1_guess = y1_guess/(2*np.sqrt(2*np.log(2)))
 
 no_weight = np.ones(630)
 
-vis = LOFAR_vis(vis_file, 1216)
+vis = LOFAR_vis(vis_file, 1248)
 q_sun = vis.queit_sun_df()
 burst = vis.vis_df()
 
+ngauss = 1
+
 params = Parameters()
-params.add_many(('I0',5*np.max(np.real(burst.bg_vis)),True,0,abs(np.max(burst.bg_vis))*10), 
-	('x0',-sun_diam_rad,True,-2*sun_diam_rad,-0.5*sun_diam_rad),
-	('y0',-0.5*sun_diam_rad,True,-1*sun_diam_rad,-0.5*sun_diam_rad), 
-	('sig_x',sig_x_guess,True,sig_stria,2*sig_sun),
-	('sig_y',sig_y_guess,True,sig_stria,2*sig_sun), 
-	('theta',np.pi/4,True,0,np.pi))
+if ngauss == 2:
+	params.add_many(('I0',5*np.max(np.real(burst.bg_vis)),True,0,abs(np.max(burst.bg_vis))*10), 
+		('x0',-sun_diam_rad,True,-2*sun_diam_rad,-0.5*sun_diam_rad),
+		('y0',-0.5*sun_diam_rad,True,-1*sun_diam_rad,-0.5*sun_diam_rad), 
+		('sig_x0',sig_x_guess/2,True,sig_stria,2*sig_sun),
+		('sig_y0',sig_y_guess/2,True,sig_stria,2*sig_sun), 
+		('theta0',np.pi/4,True,0,np.pi/2),
+		('I1',np.max(np.real(burst.bg_vis)),True,0,abs(np.max(burst.bg_vis))*10), 
+		('x1',-sun_diam_rad,True,-2*sun_diam_rad,-0.5*sun_diam_rad),
+		('y1',-0.5*sun_diam_rad,True,-1*sun_diam_rad,-0.5*sun_diam_rad), 
+		('sig_x1',sig_x1_guess,True,sig_stria,2*sig_sun),
+		('sig_y1',sig_y1_guess,True,sig_stria,2*sig_sun), 
+		('theta1',np.pi/4,True,0,np.pi/2))
+elif ngauss == 1:
+	params.add_many(('I0',5*np.max(np.real(burst.bg_vis)),True,0,abs(np.max(burst.bg_vis))*10), 
+		('x0',-sun_diam_rad,True,-2*sun_diam_rad,-0.5*sun_diam_rad),
+		('y0',-0.5*sun_diam_rad,True,-1*sun_diam_rad,-0.5*sun_diam_rad), 
+		('sig_x',sig_x_guess,True,sig_stria,2*sig_sun),
+		('sig_y',sig_y_guess,True,sig_stria,2*sig_sun), 
+		('theta',np.pi/3,True,0,np.pi/2))
+
 
 # fit = minimize(residual, params, method="leastsq", args=(q_sun.u, q_sun.v, q_sun.bg_vis, q_sun.weight))
-fit = minimize(residual_abs, params, method="leastsq", args=(burst.u, burst.v, burst.bg_vis, burst.weight))
+fit = minimize(residual_abs, params, method="leastsq", args=(burst.u, burst.v, burst.bg_vis, burst.weight, ngauss))
 
-fit.params["I0"].vary = False
-fit.params["sig_x"].vary = False
-fit.params["sig_y"].vary = False
-fit.params["theta"].vary = False
+ndim, nwalkers = 4, 500
+nsamples = 500
+guess = [*fit.params.valuesdict().values()]
+guess.pop(1)
+guess.pop(1)
+guess = np.array(guess)
+pos = [guess + guess*1e-4*np.random.randn(ndim) for i in range(nwalkers)]
+with Pool() as ep:
+	sampler = emcee.EnsembleSampler(nwalkers, ndim, lnprob_abs, args=(burst.u,burst.v,burst.bg_vis,burst.weight), pool=ep)
+	sampler.run_mcmc(pos,nsamples)
+	ep.close()
 
-fit_pos = minimize(residual_pos, fit.params, method="leastsq", args=(burst.u, burst.v, burst.bg_vis, burst.weight))
+fig, axes = plt.subplots(ndim, figsize=(10, 7), sharex=True) 
+samples = sampler.chain 
+labels = ["I0", "sig_x","sig_y","theta"] 
+for i in range(ndim): 
+	ax = axes[i] 
+	ax.plot(sampler.chain[:, :, i].T, "k", alpha=0.3) 
+	ax.set_ylabel(labels[i]) 
+	ax.yaxis.set_label_coords(-0.1, 0.5) 
+ 
+axes[-1].set_xlabel("step number");
+# plt.savefig("/mnt/murphp30_data/typeIII_int/mcmc/SB076/mcmc_chain_abs_t{}.png".format(str(t).zfill(3)))
+
+samples = sampler.chain[:, 20:, :].reshape((-1, ndim))
+
+mc_pars = np.percentile(samples,[16,50,84],axis=0)
+c_plot = corner.corner(samples, labels=["I0", "sig_x","sig_y", "theta"], truths=[*mc_pars[1]]) 
+# plt.savefig("/mnt/murphp30_data/typeIII_int/mcmc/SB076/mcmc_corner_abs_t{}.png".format(str(t).zfill(3)))
+
+
+
+if ngauss == 2:
+	fit.params["I1"].vary = False
+	fit.params["sig_x0"].vary = False
+	fit.params["sig_y0"].vary = False
+	fit.params["theta0"].vary = False
+	fit.params["I1"].vary = False
+	fit.params["sig_x1"].vary = False
+	fit.params["sig_y1"].vary = False
+	fit.params["theta1"].vary = False
+elif ngauss == 1:
+	fit.params["I0"].vary = False
+	fit.params["sig_x"].vary = False
+	fit.params["sig_y"].vary = False
+	fit.params["theta"].vary = False
+
+fit_pos = minimize(residual_pos, fit.params, method="leastsq", args=(burst.u, burst.v, burst.bg_vis, burst.weight,ngauss))
 print(fit_pos.params.valuesdict())
 
+real_ndim = 2
+real_params = Parameters()
+real_params.add_many(('x0',-sun_diam_rad),
+	('y0',-sun_diam_rad/2))
+
+real_guess = [*real_params.valuesdict().values()]
+real_guess = np.array(real_guess)
+real_pos = [real_guess + real_guess*1e-4*np.random.randn(real_ndim) for i in range(nwalkers)]
+with Pool() as ep:
+	real_sampler = emcee.EnsembleSampler(nwalkers, real_ndim, lnprob_real, args=(burst.u,burst.v,burst.bg_vis,burst.weight), pool=ep)
+	real_sampler.run_mcmc(real_pos,nsamples)
+	ep.close()
+
+fig, axes = plt.subplots(real_ndim, figsize=(10, 7), sharex=True) 
+real_samples = real_sampler.chain 
+labels = ["x0","y0"] 
+for i in range(real_ndim): 
+	ax = axes[i] 
+	ax.plot(real_sampler.chain[:, :, i].T, "k", alpha=0.3) 
+	ax.set_ylabel(labels[i]) 
+	ax.yaxis.set_label_coords(-0.1, 0.5) 
+ 
+axes[-1].set_xlabel("step number");
+# plt.savefig("/mnt/murphp30_data/typeIII_int/mcmc/SB076/mcmc_chain_xy_t{}.png".format(str(t).zfill(3)))
+
+real_samples = real_sampler.chain[:, 20:, :].reshape((-1, real_ndim))
+
+real_mc_pars = np.percentile(real_samples,[16,50,84],axis=0)
+real_c_plot = corner.corner(real_samples, labels=["x0","y0"], truths=[*real_mc_pars[1]]) 
+# plt.savefig("/mnt/murphp30_data/typeIII_int/mcmc/SB076/mcmc_corner_xy_t{}.png".format(str(t).zfill(3)))
+
+
+two_fit_pars = np.insert(mc_pars[1],1,real_mc_pars[1])
+
+
 val_dict = fit_pos.params.valuesdict()
-g_fit = gauss_2D(burst.u, burst.v, val_dict['I0'], val_dict['x0'], val_dict['y0'], 
-	val_dict['sig_x'], val_dict['sig_y'], val_dict['theta'])
+arr_size = 5000
+u_arr = np.arange(burst.u.min(),burst.u.max(),(burst.u.max()-burst.u.min())/arr_size )
+v_arr = np.arange(burst.v.min(),burst.v.max(),(burst.v.max()-burst.v.min())/arr_size )
+uv_mesh = np.meshgrid(u_arr,v_arr) 
+x_arr = np.arange(-2*0.0142739,2*0.0142739,2*1.39e-5)
+y_arr = np.arange(-2*0.0142739,2*0.0142739,2*1.39e-5)
+xy_mesh = np.meshgrid(x_arr,y_arr) 
+
+mcg = gauss_2D(burst.u, burst.v, *two_fit_pars)
+plt.figure()
+plt.plot(burst.ang_scales, abs(burst.bg_vis),"o", label="data")
+plt.plot(burst.ang_scales, abs(mcg),"r+", label="fit")
+plt.title("Visibility vs Angular Scale")
+plt.xlabel("Angular scale (arcminute)")
+plt.ylabel("Visibility (AU)")
+plt.xscale("log")
+plt.legend()
+# plt.savefig("/mnt/murphp30_data/typeIII_int/mcmc/SB076/mcmc_absfit_t{}.png".format(str(t).zfill(3)))
+
+two_fit_I = gauss_I(xy_mesh[0], xy_mesh[1], *two_fit_pars)
+
+
+fig, ax = plt.subplots() 
+ax.imshow(two_fit_I, origin='lower',extent=[Angle(x_arr[0]*u.rad).arcsec, Angle(x_arr[-1]*u.rad).arcsec,
+	Angle(y_arr[0]*u.rad).arcsec, Angle(y_arr[-1]*u.rad).arcsec])
+limb = Circle((vis.solar_ra_offset.arcsec,vis.solar_dec_offset.arcsec),vis.solar_rad.arcsec, color='r', fill=False)
+ax.add_patch(limb)
+plt.xlabel("X (arcsec)")
+plt.ylabel("Y (arcsec)")
+plt.title("mcmc_recreate")
+# plt.savefig("/mnt/murphp30_data/typeIII_int/mcmc/SB076/mcmc_recreate_t{}.png".format(str(t).zfill(3)))
+
+if ngauss == 2:
+	g_fit = two_gauss_V(burst.u, burst.v, val_dict['I0'], val_dict['x0'], val_dict['y0'], 
+		val_dict['sig_x0'], val_dict['sig_y0'], val_dict['theta0'], val_dict['I1'], val_dict['x1'], val_dict['y1'], 
+		val_dict['sig_x1'], val_dict['sig_y1'], val_dict['theta1'])
+
+	gm_fit = two_gauss_V(uv_mesh[0], uv_mesh[1], val_dict['I0'], val_dict['x0'], val_dict['y0'], 
+		val_dict['sig_x0'], val_dict['sig_y0'], val_dict['theta0'], val_dict['I1'], val_dict['x1'], val_dict['y1'], 
+		val_dict['sig_x1'], val_dict['sig_y1'], val_dict['theta1'])
+
+	I_fit = two_gauss_I(xy_mesh[0], xy_mesh[1], val_dict['I0'], val_dict['x0'], val_dict['y0'], 
+		val_dict['sig_x0'], val_dict['sig_y0'], val_dict['theta0'], val_dict['I1'], val_dict['x1'], val_dict['y1'], 
+		val_dict['sig_x1'], val_dict['sig_y1'], val_dict['theta1'])
+
+elif ngauss == 1:
+	g_fit = gauss_2D(burst.u, burst.v, val_dict['I0'], val_dict['x0'], val_dict['y0'], 
+		val_dict['sig_x'], val_dict['sig_y'], val_dict['theta'])
+
+	gm_fit = gauss_2D(uv_mesh[0], uv_mesh[1], val_dict['I0'], val_dict['x0'], val_dict['y0'], 
+		val_dict['sig_x'], val_dict['sig_y'], val_dict['theta'])
+
+	I_fit = gauss_I(xy_mesh[0], xy_mesh[1], val_dict['I0'], val_dict['x0'], val_dict['y0'], 
+		val_dict['sig_x'], val_dict['sig_y'], val_dict['theta'])
 
 plt.figure()
 plt.plot(burst.ang_scales, abs(burst.bg_vis),'o')
 plt.plot(burst.ang_scales, abs(g_fit),'r+') 
 plt.xscale('log')
 
-arr_size = 5000
-u_arr = np.arange(q_sun.u.min(),q_sun.u.max(),(q_sun.u.max()-q_sun.u.min())/arr_size )
-v_arr = np.arange(q_sun.v.min(),q_sun.v.max(),(q_sun.v.max()-q_sun.v.min())/arr_size )
-uv_mesh = np.meshgrid(u_arr,v_arr) 
-x_arr = np.arange(-2*0.0142739,2*0.0142739,2*1.39e-5)
-y_arr = np.arange(-2*0.0142739,2*0.0142739,2*1.39e-5)
-xy_mesh = np.meshgrid(x_arr,y_arr) 
-
-sun_pos = SkyCoord(vis.sun_dir[0].rad, vis.sun_dir[1].rad, unit="rad")   
-
-
-I_fit = gauss_I_theta(xy_mesh[0], xy_mesh[1], val_dict['I0'], val_dict['x0'], val_dict['y0'], 
-	val_dict['sig_x'], val_dict['sig_y'], val_dict['theta'])
 fig, ax = plt.subplots()
 ax.imshow(I_fit, aspect='equal', origin='lower', extent=[x_arr[0], x_arr[-1], y_arr[0], y_arr[-1]])
 s = Circle((vis.solar_ra_offset.rad,vis.solar_dec_offset.rad),vis.solar_rad.rad, color='r', fill=False)
 ax.add_patch(s)
 
-gm_fit = gauss_2D(uv_mesh[0], uv_mesh[1], val_dict['I0'], val_dict['x0'], val_dict['y0'], 
-	val_dict['sig_x'], val_dict['sig_y'], val_dict['theta'])
+
+
 # fig, ax = plt.subplots()
 # ax.imshow(gm_fit.real, aspect='equal', origin='lower', extent=[u_arr[0], u_arr[-1], v_arr[0], v_arr[-1]])
 # s = Circle((0,0),1/vis.solar_rad.rad, color='r', fill=False)
 # ax.add_patch(s)
-
-# us = np.linspace(-10,10,500)
-# vs = np.linspace(-10,10,500)
-# uvmesh = np.meshgrid(us,vs)
-# g2dm = gauss_2D(uvmesh[0], uvmesh[1], 10, 3e-1, 4e-1, 1e-1, 2e-1, np.pi/3)
-
-# np.random.seed(42)
-# us = np.random.choice(us, len(us))
-# vs = np.random.choice(vs, len(vs))
-
-
-# g2d = gauss_2D(us, vs, 10, 3e-1, 4e-1, 1e-1, 2e-1, np.pi/3)
-
-# # plt.figure()
-# # plt.scatter(us,vs,c=g2d.real)
-
-# params = Parameters()
-# params.add_many(('I0',5,True,1), 
-# 	('x0',1e-1,True,-1,1),
-# 	('y0',1e-1,True,-1,1), 
-# 	('sig_x',1e-1,True,0,1),
-# 	('sig_y',1e-1,True,0,1), 
-# 	('theta',np.pi/3,True,0,np.pi/2))
-
-
-
-# fit = minimize(residual, params, method="leastsq", args=(us, vs, g2d))
-# print(fit.params.valuesdict())
 
 # df_auto_list = []
 # df_cross_list = []
