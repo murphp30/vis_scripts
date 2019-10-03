@@ -147,7 +147,7 @@ def get_data(f,burst_start=datetime(2015,10,17,13,21,16,8), burst_end = datetime
                 #approximate guess for burst start
                 #burst_start = datetime(2015,10,17,13,21,16,8)
                 #burst_end = datetime(2015,10,17,13,22,31,7)
-                burst_len = 60
+                
                 #get actual index
                 burst_start_index = int(np.floor((burst_start-exptime_start).seconds/tsamp))
                 burst_end_index = int(np.floor((burst_end-exptime_start).seconds/tsamp))
