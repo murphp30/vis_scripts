@@ -180,7 +180,7 @@ if __name__ == "__main__":
 
     fits_in = sys.argv[1]
     out_png = sys.argv[2]
-    # plot_one(fits_in)#, True)    
+    #plot_one(fits_in)#, True)    
     # plt.savefig(out_png)
 #plot_all('1')
     #plt.show()
@@ -208,10 +208,15 @@ if __name__ == "__main__":
     smap.meta['wavelnth'] = smap.meta['crval3']/1e6
     smap.meta['waveunit'] = "MHz"
     # smap.plot(cmap='viridis')
-    # plt.figure()
+    fig = plt.figure()
     helio_smap = LOFAR_to_sun(smap)
+    ax0 = fig.add_subplot(1,1,1,projection=helio_smap)
+    
     helio_smap.plot(cmap='viridis')
     helio_smap.draw_limb(color='r')
+    b = Ellipse((200,200), Angle(smap.meta['BMAJ']*u.deg).arcsec/abs(smap.scale[0].to(u.arcsec/u.pix).value), Angle(smap.meta['BMIN']*u.deg).arcsec/abs(smap.scale[1].to(u.arcsec/u.pix).value),angle=90+smap.meta['BPA'], fill=False, color='w',ls='--')
+    ax0.add_patch(b)
+    plt.colorbar()
     plt.savefig(out_png)
     plt.show()
     #pdb.set_trace()

@@ -128,7 +128,7 @@ class stria:
 		#cbar_ax = fig.add_axes([0.92,0.1,0.05,0.7]) 
 		plt.title("{} MHz {}".format(np.round(self.smap.wavelength.value,2), self.smap.date.iso))
 		#plt.colorbar(burst_im, cax=cbar_ax)#, fraction=0.046, pad=0.04)
-		rot_ang = sun.P(self.smap.date)
+		rot_ang = Angle(0,unit="deg")#sun.P(self.smap.date)
 		b = Ellipse((250,250), (self.bmaj.to(u.arcsec)/self.smap.scale[0]).value ,(self.bmin.to(u.arcsec)/self.smap.scale[1]).value , 
 		 angle=90+self.bpa.deg-rot_ang.deg, fill=False, color='w')#angle=90+self.bpa.deg-rot_ang.deg,
 		ax0.add_patch(b)
@@ -173,4 +173,4 @@ if __name__ == "__main__":
 	s = stria(in_fits)
 	s.plot()
 	plt.savefig(in_fits[:-4]+"png")
-	#plt.show()
+	plt.show()
