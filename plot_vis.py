@@ -122,7 +122,7 @@ def residual(pars, u,v, data, fit_model="gauss", weights=None, ngauss=1, size=Tr
 			y0 = parvals['y0']
 		if fit_model == "gauss":
 			model = gauss_2D(u,v,I0,x0,y0,sig_x,sig_y,theta,C)
-		elif fit_model == "ellipse":
+		elif fit_model == "ellipse": #this doesn't actually work and I probably don't need it.
 			model = np.fft.fftshift(np.fft.fft2(ellipse(1/u,1/v,I0,x0,y0,sig_x,sig_y, theta,C)))
 	elif ngauss == 2:
 		I0 = parvals['I0']
@@ -135,7 +135,7 @@ def residual(pars, u,v, data, fit_model="gauss", weights=None, ngauss=1, size=Tr
 		sig_y1 = parvals['sig_y1']
 		theta1 = parvals['theta1']
 		#C1 = parvals['C1']
-		if size:
+		if size: #assume (x0,y0) and (x1,y1) are close
 			x0 = 0
 			y0 = 0
 			x1 = 0
@@ -146,17 +146,27 @@ def residual(pars, u,v, data, fit_model="gauss", weights=None, ngauss=1, size=Tr
 			x1 = parvals['x1']
 			y1 = parvals['y1']
 		if fit_model == "gauss":
-			model = gauss_2D(u,v,I0,x0,y0,sig_x0,sig_y0,theta0,C0) + gauss_2D(u,v,I1,x1,y1,sig_x1,sig_y1,theta1,C0)
+			model = two_gauss_V(u,v,I0,x0,y0,sig_x0,sig_y0,theta0,C0,\
+			I1,x1,y1,sig_x1,sig_y1,theta1)
+			m0,m1 = gauss_2D(u,v,I0,x0,y0,sig_x0,sig_y0,theta0,C0),  gauss_2D(u,v,I1,x1,y1,sig_x1,sig_y1,theta1,C0)
 	else:
 		print("Must have max 2 gauss (for now)")
 		return
 	
 	if size:
+		# if ngauss == 2:
+		# 	if weights is None:
+		# 		#abs then log otherwise you get fringes in recreated image
+		# 		resid = np.log(m0+m1) - np.log(abs(data)) #np.sqrt((np.real(model) - np.real(data))**2 + (np.imag(model) - np.imag(data))**2)
+		# 	else:
+		# 		resid = (np.log(m0+m1) - np.log(abs(data)))*weights#np.sqrt((np.real(model) - np.real(data))**2 + (np.imag(model) - np.imag(data))**2)*weights
+		# elif ngauss == 1:
 		if weights is None:
 			#abs then log otherwise you get fringes in recreated image
 			resid = np.log(abs(model)) - np.log(abs(data)) #np.sqrt((np.real(model) - np.real(data))**2 + (np.imag(model) - np.imag(data))**2)
 		else:
 			resid = (np.log(abs(model)) - np.log(abs(data)))*weights#np.sqrt((np.real(model) - np.real(data))**2 + (np.imag(model) - np.imag(data))**2)*weights
+	
 	else:
 		if weights is None:
 			resid = np.log((model.real - data.real)**2) + np.log((model.imag-data.imag)**2) #np.angle(model) - np.angle(data)
@@ -429,6 +439,8 @@ x_arr = np.arange(-2*0.0142739,2*0.0142739,2*1.39e-5)
 y_arr = np.arange(-2*0.0142739,2*0.0142739,2*1.39e-5)
 xy_mesh = np.meshgrid(x_arr,y_arr) 
 
+ang_arr = np.arange(0, 600, 600/arr_size)
+
 bf_data, bf_freq, bf_tarr = get_data(bf_file, vis0.obsstart, vis0.obsend )
 bf_delt = bf_tarr[1] - bf_tarr[0]
 bf_delf = bf_freq[1] - bf_freq[0]
@@ -451,12 +463,12 @@ def parallel_fit(i):
 	vis = LOFAR_vis(vis_file, i)
 	burst = vis.vis_df()
 
-	ngauss = 2
+	ngauss = 1
 
 	params = Parameters()
-	fit_vis = burst.raw - q_sun.raw
+	fit_vis = burst.vis - q_sun.vis
 	#fit_vis = np.log(fit_vis)
-	fit_weight = (burst.weight + q_sun.weight)
+	fit_weight = np.sqrt(burst.weight**2 + q_sun.weight**2)
 	# fit_weight = np.log(fit_weight)
 	if ngauss == 2:
 		params.add_many(('I0',np.pi*np.max(abs(fit_vis)),True,0,abs(np.max(fit_vis))*10), 
@@ -473,6 +485,7 @@ def parallel_fit(i):
 			('sig_y1',sig_y1_guess,True,sig_stria,1.5*sig_sun), 
 			('theta1',np.pi/3,True,0,np.pi))
 			#('C1',np.min(abs(fit_vis)),True, 0))
+		# fit = minimize(residual, params, method="leastsq", args=(burst.u, burst.v, fit_vis,"gauss", fit_weight , ngauss, False))
 	elif ngauss == 1:
 		params.add_many(('I0',2*np.pi*np.max(abs(fit_vis)),True,0,abs(np.max(fit_vis))*10), 
 			('x0',-0.7*sun_diam_rad,False,-2*sun_diam_rad,-0.25*sun_diam_rad),
@@ -480,7 +493,7 @@ def parallel_fit(i):
 			('sig_x',sig_x_guess,True,sig_stria,1.5*sig_sun),
 			('sig_y',sig_y_guess,True,sig_stria,1.5*sig_sun), 
 			('theta',np.pi/3,True,0, np.pi),
-			('C',np.min(abs(fit_vis)),True, 1e-4))
+			('C',np.mean(abs(fit_vis)),True, np.min(abs(fit_vis))))
 
 
 	fit = minimize(residual, params, method="leastsq", args=(burst.u, burst.v, fit_vis,"gauss", fit_weight , ngauss, True))
@@ -500,7 +513,7 @@ def parallel_fit(i):
 		fit.params["sig_x1"].vary = False
 		fit.params["sig_y1"].vary = False
 		fit.params["theta1"].vary = False
-		#fit.params["C1"].vary = False
+		# fit.params["C1"].vary = False
 	elif ngauss == 1:
 		fit.params["I0"].vary = False
 		fit.params["x0"].vary = True
@@ -510,14 +523,22 @@ def parallel_fit(i):
 		fit.params["theta"].vary = False
 		fit.params["C"].vary = False
 
-	fit_pos = minimize(residual, fit.params, method="leastsq", args=(burst.u, burst.v, fit_vis,"gauss",fit_weight ,ngauss,False))
-	val_dict = fit_pos.params.valuesdict()
+	fit = minimize(residual, fit.params, method="leastsq", args=(burst.u, burst.v, fit_vis,"gauss",fit_weight ,ngauss,False))
+	val_dict = fit.params.valuesdict()
 
 	if ngauss == 2:
-		g_fit = two_gauss_V(burst.u, burst.v, val_dict['I0'], val_dict['x0'], val_dict['y0'], 
-			val_dict['sig_x0'], val_dict['sig_y0'], val_dict['theta0'], val_dict['C0'], val_dict['I1'], val_dict['x1'], val_dict['y1'], 
-			val_dict['sig_x1'], val_dict['sig_y1'], val_dict['theta1'])
+		# g_fit = two_gauss_V(burst.u, burst.v, val_dict['I0'], val_dict['x0'], val_dict['y0'], 
+		# 	val_dict['sig_x0'], val_dict['sig_y0'], val_dict['theta0'], val_dict['C0'], val_dict['I1'], val_dict['x1'], val_dict['y1'], 
+		# 	val_dict['sig_x1'], val_dict['sig_y1'], val_dict['theta1'])
+		u_rot0, v_rot0 = rotate_coords(u_arr, v_arr, val_dict['theta0'])
+		u_rot1, v_rot1 = rotate_coords(u_arr, v_arr, val_dict['theta1'])
+		g_fitx = ((val_dict['I0']/(2*np.pi)) * np.exp(-((val_dict['sig_x0']**2 * (2*np.pi*u_rot0)**2))/2)) \
+		+ ((val_dict['I1']/(2*np.pi)) * np.exp(-((val_dict['sig_x1']**2 * (2*np.pi*u_rot1)**2))/2)) + 2*val_dict['C0']
+		g_fity = ((val_dict['I0']/(2*np.pi)) * np.exp(-((val_dict['sig_y0']**2 * (2*np.pi*v_rot0)**2))/2)) \
+		+ ((val_dict['I1']/(2*np.pi)) * np.exp(-((val_dict['sig_y1']**2 * (2*np.pi*v_rot1)**2))/2)) + 2*val_dict['C0']
 
+		ang_u, ang_v = Angle((1/abs(u_rot0))*u.rad).arcmin, Angle((1/abs(v_rot0))*u.rad).arcmin
+		ang_u1, ang_v1 = Angle((1/abs(u_rot1))*u.rad).arcmin, Angle((1/abs(v_rot1))*u.rad).arcmin
 		cont_fit = two_gauss_V(uv_mesh[0], uv_mesh[1], val_dict['I0'], val_dict['x0'], val_dict['y0'], 
 			val_dict['sig_x0'], val_dict['sig_y0'], val_dict['theta0'], val_dict['C0'], val_dict['I1'], val_dict['x1'], val_dict['y1'], 
 			val_dict['sig_x1'], val_dict['sig_y1'], val_dict['theta1'])
@@ -528,9 +549,12 @@ def parallel_fit(i):
 
 	elif ngauss == 1:
 		
-		g_fit = gauss_2D(burst.u, burst.v, val_dict['I0'], val_dict['x0'], val_dict['y0'], 
-					val_dict['sig_x'], val_dict['sig_y'], val_dict['theta'], val_dict['C'])
-
+		# g_fit = gauss_2D(burst.u, burst.v, val_dict['I0'], val_dict['x0'], val_dict['y0'], 
+					# val_dict['sig_x'], val_dict['sig_y'], val_dict['theta'], val_dict['C'])
+		u_rot, v_rot = rotate_coords(u_arr, v_arr, val_dict['theta'])
+		g_fitx = (val_dict['I0']/(2*np.pi)) * np.exp(-((val_dict['sig_x']**2 * (2*np.pi*u_rot)**2))/2) + val_dict['C']
+		g_fity = (val_dict['I0']/(2*np.pi)) * np.exp(-((val_dict['sig_y']**2 * (2*np.pi*v_rot)**2))/2) + val_dict['C']
+		ang_u, ang_v = Angle((1/abs(u_rot))*u.rad).arcmin, Angle((1/abs(v_rot))*u.rad).arcmin
 		cont_fit = gauss_2D(uv_mesh[0], uv_mesh[1], val_dict['I0'], val_dict['x0'], val_dict['y0'],
 			val_dict['sig_x'], val_dict['sig_y'], val_dict['theta'], val_dict['C'])
 		I_fit = gauss_I(xy_mesh[0], xy_mesh[1], val_dict['I0'], val_dict['x0'], val_dict['y0'], 
@@ -543,11 +567,18 @@ def parallel_fit(i):
 	# plt.figure()
 	fig, ax = plt.subplots()#1,1, figsize=(8,7))
 	ax.plot(burst.ang_scales, (abs(fit_vis)),'o')
-	ax.plot(burst.ang_scales, (abs(g_fit)),'r+') 
+	#ax.plot(burst.ang_scales, (abs(g_fit)),'r+') 
+	# if ngauss == 1:
+	ax.plot(ang_u, g_fitx, 'r')
+	ax.plot(ang_v, g_fity, 'r')
+	# else:
+		# ax.plot(burst.ang_scales, (abs(g_fit)),'r+')
 	ax.set_xlabel("Angular Scale (arcminute)")
 	ax.set_ylabel("Visibility (AU)")
 	ax.set_title("Vis vs ang scale {}".format(vis.time.isoformat()))
+
 	ax.set_xscale('log')
+	ax.set_xlim([ax.get_xlim()[0], 1e3])
 	if save:
 		# plt.savefig("/mnt/murphp30_data/typeIII_int/lmfit/tests/vis_ang_scale_t{1}_1gauss.png".format(str(SB).zfill(3),str(vis.t-q_t).zfill(3)))
 		plt.savefig("/mnt/murphp30_data/typeIII_int/lmfit/tests/vis_ang_scale_raw.png")
@@ -622,7 +653,7 @@ def parallel_fit(i):
 		# plt.savefig("/mnt/murphp30_data/typeIII_int/lmfit/tests/im_recreate_t{1}_1gauss.png".format(str(SB).zfill(3),str(vis.t-q_t).zfill(3)))
 		plt.savefig("/mnt/murphp30_data/typeIII_int/lmfit/tests/im_recreate_raw.png")
 		plt.close()
-	return fit_pos
+	return fit
 	#fig, ax = plt.subplots()
 	#ax.imshow(abs(gm_fit), aspect='equal', origin='lower', extent=[u_arr[0], u_arr[-1], v_arr[0], v_arr[-1]])
 	# s = Circle((0,0),1/vis.solar_rad.rad, color='r', fill=False)
@@ -632,7 +663,7 @@ def parallel_fit(i):
 # np.save("/mnt/murphp30_data/typeIII_int/mcmc/SB076/pars_list.npy", pars_list)
 # with Pool() as p_fit:
 # 	fits = p_fit.map(parallel_fit, range(q_t, q_t+79))
-fit_pos = parallel_fit(q_t+53)
+fit_pos = parallel_fit(q_t+24)
 t_run = time.time()-t0
 print("Time to run:", t_run)
 
