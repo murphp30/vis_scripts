@@ -579,9 +579,10 @@ def parallel_fit(i):
 
 	ax.set_xscale('log')
 	ax.set_xlim([ax.get_xlim()[0], 1e3])
+	ax.set_ylim([ax.get_ylim()[0], 0.9e7])
 	if save:
-		# plt.savefig("/mnt/murphp30_data/typeIII_int/lmfit/tests/vis_ang_scale_t{1}_1gauss.png".format(str(SB).zfill(3),str(vis.t-q_t).zfill(3)))
-		plt.savefig("/mnt/murphp30_data/typeIII_int/lmfit/tests/vis_ang_scale_raw.png")
+		plt.savefig("/mnt/murphp30_data/typeIII_int/lmfit/tests/vis_ang_scale_t{1}.png".format(str(SB).zfill(3),str(vis.t-q_t).zfill(3)))
+		# plt.savefig("/mnt/murphp30_data/typeIII_int/lmfit/tests/vis_ang_scale_raw.png")
 		plt.close()	
 	# plt.figure()
 	# plt.plot(burst.ang_scales, np.log(abs(fit_vis))-np.log(abs(g_fit)),'o') 
@@ -602,15 +603,15 @@ def parallel_fit(i):
 	# plt.tight_layout()
 
 
-	plt.figure()
-	plt.scatter(burst.u, burst.v, c=np.log(abs(fit_vis)))
-	plt.xlabel(r"u ($\lambda$)")
-	plt.ylabel(r"v ($\lambda$)")
-	plt.title("uv plane")
-	if save:
-		# plt.savefig("/mnt/murphp30_data/typeIII_int/lmfit/tests/vis_ang_scale_t{1}_1gauss.png".format(str(SB).zfill(3),str(vis.t-q_t).zfill(3)))
-		plt.savefig("/mnt/murphp30_data/typeIII_int/lmfit/tests/uv_raw.png")
-		plt.close()
+	# plt.figure()
+	# plt.scatter(burst.u, burst.v, c=np.log(abs(fit_vis)))
+	# plt.xlabel(r"u ($\lambda$)")
+	# plt.ylabel(r"v ($\lambda$)")
+	# plt.title("uv plane")
+	# if save:
+	# 	plt.savefig("/mnt/murphp30_data/typeIII_int/lmfit/tests/uv_plane_t{1}.png".format(str(SB).zfill(3),str(vis.t-q_t).zfill(3)))
+	# 	# plt.savefig("/mnt/murphp30_data/typeIII_int/lmfit/tests/uv_raw.png")
+	# 	plt.close()
 
 	plt.figure()
 	plt.scatter(burst.u, burst.v, c=np.log(abs(fit_vis)))
@@ -630,8 +631,8 @@ def parallel_fit(i):
 	plt.ylabel(r"v ($\lambda$)")
 	plt.title("uv plane")
 	if save:
-		# plt.savefig("/mnt/murphp30_data/typeIII_int/lmfit/tests/vis_ang_scale_t{1}_1gauss.png".format(str(SB).zfill(3),str(vis.t-q_t).zfill(3)))
-		plt.savefig("/mnt/murphp30_data/typeIII_int/lmfit/tests/uv_cont_raw.png")
+		plt.savefig("/mnt/murphp30_data/typeIII_int/lmfit/tests/uv_zoom_t{1}.png".format(str(SB).zfill(3),str(vis.t-q_t).zfill(3)))
+		# plt.savefig("/mnt/murphp30_data/typeIII_int/lmfit/tests/uv_cont_raw.png")
 		plt.close()
 	# plt.figure()
 	# plt.imshow(np.log(abs(cont_fit)), aspect='equal', origin='lower', extent=[u_arr[0], u_arr[-1], v_arr[0], v_arr[-1]])
@@ -650,8 +651,8 @@ def parallel_fit(i):
 	plt.title("Recreated Image {}".format(vis.time.isoformat()))
 	plt.tight_layout()
 	if save:
-		# plt.savefig("/mnt/murphp30_data/typeIII_int/lmfit/tests/im_recreate_t{1}_1gauss.png".format(str(SB).zfill(3),str(vis.t-q_t).zfill(3)))
-		plt.savefig("/mnt/murphp30_data/typeIII_int/lmfit/tests/im_recreate_raw.png")
+		plt.savefig("/mnt/murphp30_data/typeIII_int/lmfit/tests/im_recreate_t{1}.png".format(str(SB).zfill(3),str(vis.t-q_t).zfill(3)))
+		# plt.savefig("/mnt/murphp30_data/typeIII_int/lmfit/tests/im_recreate_raw.png")
 		plt.close()
 	return fit
 	#fig, ax = plt.subplots()
