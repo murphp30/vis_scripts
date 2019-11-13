@@ -149,8 +149,8 @@ def get_data(f,burst_start=datetime(2015,10,17,13,21,16,8), burst_end = datetime
                 #burst_end = datetime(2015,10,17,13,22,31,7)
                 
                 #get actual index
-                burst_start_index = int(np.floor((burst_start-exptime_start).seconds/tsamp))
-                burst_end_index = int(np.floor((burst_end-exptime_start).seconds/tsamp))
+                burst_start_index = int(np.floor((burst_start-exptime_start).total_seconds()/tsamp))
+                burst_end_index = int(np.ceil((burst_end-exptime_start).total_seconds()/tsamp))
 
                 dataset = h5["/SUB_ARRAY_POINTING_"+ SAP + "/BEAM_"+BEAM +"/STOKES_" +STOKES]
                 data = dataset[burst_start_index:burst_end_index]
