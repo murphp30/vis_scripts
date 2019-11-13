@@ -1,0 +1,15 @@
+2019-09-16 09:19:44	INFO	::casa	
+2019-09-16 09:19:44	INFO	::casa	Checking telemetry submission interval
+2019-09-16 09:19:44	INFO	::casa	Telemetry submit interval not reached. Not submitting data.
+2019-09-16 09:19:44	INFO	::casa	Next telemetry data submission in: 22:35:32.840656
+2019-09-16 09:19:44	INFO	::casa	CASA Version 5.4.1-31  
+2019-09-16 09:19:50	INFO	browsetable::::	
+2019-09-16 09:19:50	INFO	browsetable::::+	##########################################
+2019-09-16 09:19:50	INFO	browsetable::::+	##### Begin Task: browsetable        #####
+2019-09-16 09:19:50	INFO	browsetable::::	browsetable(tablename="",mightedit=False,sortlist="",taql="",skipcols="")
+2019-09-16 09:19:50	INFO	browsetable::name::	No table opened.
+2019-09-16 09:19:50	INFO	browsetable::browse::	Spawning table browser one moment...
+2019-09-16 09:19:50	INFO	browsetable::browse::	Table rendered
+2019-09-16 09:19:50	INFO	browsetable::name::	No table opened.
+2019-09-16 09:19:50	INFO	browsetable::::	##### End Task: browsetable          #####
+2019-09-16 09:19:50	INFO	browsetable::::+	##########################################

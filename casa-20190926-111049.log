@@ -1,0 +1,457 @@
+2019-09-26 11:10:55	INFO	::casa	
+2019-09-26 11:10:55	INFO	::casa	Checking telemetry submission interval
+2019-09-26 11:10:55	INFO	::casa	Telemetry submit interval not reached. Not submitting data.
+2019-09-26 11:10:55	INFO	::casa	Next telemetry data submission in: 2:47:42.181623
+2019-09-26 11:10:55	INFO	::casa	CASA Version 5.4.1-31  
+2019-09-26 11:12:08	INFO	plotms::::	
+2019-09-26 11:12:08	INFO	plotms::::+	##########################################
+2019-09-26 11:12:08	INFO	plotms::::+	##### Begin Task: plotms             #####
+2019-09-26 11:12:08	INFO	plotms::::	plotms(vis="L401003_SB076_uv.dppp.MS/",gridrows=1,gridcols=1,rowindex=0,colindex=0,
+2019-09-26 11:12:08	INFO	plotms::::+	        plotindex=0,xaxis="U",xdatacolumn="",yaxis="V",ydatacolumn="corrected",
+2019-09-26 11:12:08	INFO	plotms::::+	        yaxislocation="",selectdata=True,field="",spw="",timerange="13:21:53.43",
+2019-09-26 11:12:08	INFO	plotms::::+	        uvrange="",antenna="",scan="",correlation="",array="",
+2019-09-26 11:12:08	INFO	plotms::::+	        observation="",intent="",feed="",msselect="",averagedata=True,
+2019-09-26 11:12:08	INFO	plotms::::+	        avgchannel="",avgtime="",avgscan=False,avgfield=False,avgbaseline=False,
+2019-09-26 11:12:08	INFO	plotms::::+	        avgantenna=False,avgspw=False,scalar=False,transform=True,freqframe="",
+2019-09-26 11:12:08	INFO	plotms::::+	        restfreq="",veldef="RADIO",shift=[0.0, 0.0],extendflag=False,extcorr=False,
+2019-09-26 11:12:08	INFO	plotms::::+	        extchannel=False,iteraxis="",xselfscale=False,yselfscale=False,xsharedaxis=False,
+2019-09-26 11:12:08	INFO	plotms::::+	        ysharedaxis=False,customsymbol=False,symbolshape="autoscaling",symbolsize=2,symbolcolor="0000ff",
+2019-09-26 11:12:08	INFO	plotms::::+	        symbolfill="fill",symboloutline=False,coloraxis="",customflaggedsymbol=False,flaggedsymbolshape="circle",
+2019-09-26 11:12:08	INFO	plotms::::+	        flaggedsymbolsize=2,flaggedsymbolcolor="ff0000",flaggedsymbolfill="fill",flaggedsymboloutline=False,xconnector="",
+2019-09-26 11:12:08	INFO	plotms::::+	        timeconnector=False,plotrange=[],title="",titlefont=0,xlabel="",
+2019-09-26 11:12:08	INFO	plotms::::+	        xaxisfont=0,ylabel="",yaxisfont=0,showmajorgrid=False,majorwidth=1,
+2019-09-26 11:12:08	INFO	plotms::::+	        majorstyle="",majorcolor="B0B0B0",showminorgrid=False,minorwidth=1,minorstyle="",
+2019-09-26 11:12:08	INFO	plotms::::+	        minorcolor="D0D0D0",showlegend=False,legendposition="",plotfile="",expformat="",
+2019-09-26 11:12:08	INFO	plotms::::+	        verbose=True,exprange="",highres=False,dpi=-1,width=-1,
+2019-09-26 11:12:08	INFO	plotms::::+	        height=-1,overwrite=False,showgui=True,clearplots=True,callib=[''],
+2019-09-26 11:12:08	INFO	plotms::::+	        headeritems="",showatm=False,showtsky=False)
+2019-09-26 11:12:08	SEVERE	plotms::::	Input file not found:
+2019-09-26 11:12:08	SEVERE	plotms::::+	/net/romulus.ap.dias.ie/romulus/murphp30_data/typeIII_int/scripts/L401003_SB076_uv.dppp.MS
+2019-09-26 11:12:08	INFO	plotms::::	##### End Task: plotms               #####
+2019-09-26 11:12:08	INFO	plotms::::+	##########################################
+2019-09-26 11:12:14	INFO	plotms::::	
+2019-09-26 11:12:14	INFO	plotms::::+	##########################################
+2019-09-26 11:12:14	INFO	plotms::::+	##### Begin Task: plotms             #####
+2019-09-26 11:12:14	INFO	plotms::::	plotms(vis="L401003_SB076_uv.dppp.MS/",gridrows=1,gridcols=1,rowindex=0,colindex=0,
+2019-09-26 11:12:14	INFO	plotms::::+	        plotindex=0,xaxis="U",xdatacolumn="",yaxis="V",ydatacolumn="corrected",
+2019-09-26 11:12:14	INFO	plotms::::+	        yaxislocation="",selectdata=True,field="",spw="",timerange="13:21:53.4300",
+2019-09-26 11:12:14	INFO	plotms::::+	        uvrange="",antenna="",scan="",correlation="",array="",
+2019-09-26 11:12:14	INFO	plotms::::+	        observation="",intent="",feed="",msselect="",averagedata=True,
+2019-09-26 11:12:14	INFO	plotms::::+	        avgchannel="",avgtime="",avgscan=False,avgfield=False,avgbaseline=False,
+2019-09-26 11:12:14	INFO	plotms::::+	        avgantenna=False,avgspw=False,scalar=False,transform=True,freqframe="",
+2019-09-26 11:12:14	INFO	plotms::::+	        restfreq="",veldef="RADIO",shift=[0.0, 0.0],extendflag=False,extcorr=False,
+2019-09-26 11:12:14	INFO	plotms::::+	        extchannel=False,iteraxis="",xselfscale=False,yselfscale=False,xsharedaxis=False,
+2019-09-26 11:12:14	INFO	plotms::::+	        ysharedaxis=False,customsymbol=False,symbolshape="autoscaling",symbolsize=2,symbolcolor="0000ff",
+2019-09-26 11:12:14	INFO	plotms::::+	        symbolfill="fill",symboloutline=False,coloraxis="",customflaggedsymbol=False,flaggedsymbolshape="circle",
+2019-09-26 11:12:14	INFO	plotms::::+	        flaggedsymbolsize=2,flaggedsymbolcolor="ff0000",flaggedsymbolfill="fill",flaggedsymboloutline=False,xconnector="",
+2019-09-26 11:12:14	INFO	plotms::::+	        timeconnector=False,plotrange=[],title="",titlefont=0,xlabel="",
+2019-09-26 11:12:14	INFO	plotms::::+	        xaxisfont=0,ylabel="",yaxisfont=0,showmajorgrid=False,majorwidth=1,
+2019-09-26 11:12:14	INFO	plotms::::+	        majorstyle="",majorcolor="B0B0B0",showminorgrid=False,minorwidth=1,minorstyle="",
+2019-09-26 11:12:14	INFO	plotms::::+	        minorcolor="D0D0D0",showlegend=False,legendposition="",plotfile="",expformat="",
+2019-09-26 11:12:14	INFO	plotms::::+	        verbose=True,exprange="",highres=False,dpi=-1,width=-1,
+2019-09-26 11:12:14	INFO	plotms::::+	        height=-1,overwrite=False,showgui=True,clearplots=True,callib=[''],
+2019-09-26 11:12:14	INFO	plotms::::+	        headeritems="",showatm=False,showtsky=False)
+2019-09-26 11:12:14	SEVERE	plotms::::	Input file not found:
+2019-09-26 11:12:14	SEVERE	plotms::::+	/net/romulus.ap.dias.ie/romulus/murphp30_data/typeIII_int/scripts/L401003_SB076_uv.dppp.MS
+2019-09-26 11:12:14	INFO	plotms::::	##### End Task: plotms               #####
+2019-09-26 11:12:14	INFO	plotms::::+	##########################################
+2019-09-26 11:12:17	INFO	plotms::::	
+2019-09-26 11:12:17	INFO	plotms::::+	##########################################
+2019-09-26 11:12:17	INFO	plotms::::+	##### Begin Task: plotms             #####
+2019-09-26 11:12:17	INFO	plotms::::	plotms(vis="L401003_SB076_uv.dppp.MS/",gridrows=1,gridcols=1,rowindex=0,colindex=0,
+2019-09-26 11:12:17	INFO	plotms::::+	        plotindex=0,xaxis="U",xdatacolumn="",yaxis="V",ydatacolumn="corrected",
+2019-09-26 11:12:17	INFO	plotms::::+	        yaxislocation="",selectdata=True,field="",spw="",timerange="13:21:53.430",
+2019-09-26 11:12:17	INFO	plotms::::+	        uvrange="",antenna="",scan="",correlation="",array="",
+2019-09-26 11:12:17	INFO	plotms::::+	        observation="",intent="",feed="",msselect="",averagedata=True,
+2019-09-26 11:12:17	INFO	plotms::::+	        avgchannel="",avgtime="",avgscan=False,avgfield=False,avgbaseline=False,
+2019-09-26 11:12:17	INFO	plotms::::+	        avgantenna=False,avgspw=False,scalar=False,transform=True,freqframe="",
+2019-09-26 11:12:17	INFO	plotms::::+	        restfreq="",veldef="RADIO",shift=[0.0, 0.0],extendflag=False,extcorr=False,
+2019-09-26 11:12:17	INFO	plotms::::+	        extchannel=False,iteraxis="",xselfscale=False,yselfscale=False,xsharedaxis=False,
+2019-09-26 11:12:17	INFO	plotms::::+	        ysharedaxis=False,customsymbol=False,symbolshape="autoscaling",symbolsize=2,symbolcolor="0000ff",
+2019-09-26 11:12:17	INFO	plotms::::+	        symbolfill="fill",symboloutline=False,coloraxis="",customflaggedsymbol=False,flaggedsymbolshape="circle",
+2019-09-26 11:12:17	INFO	plotms::::+	        flaggedsymbolsize=2,flaggedsymbolcolor="ff0000",flaggedsymbolfill="fill",flaggedsymboloutline=False,xconnector="",
+2019-09-26 11:12:17	INFO	plotms::::+	        timeconnector=False,plotrange=[],title="",titlefont=0,xlabel="",
+2019-09-26 11:12:17	INFO	plotms::::+	        xaxisfont=0,ylabel="",yaxisfont=0,showmajorgrid=False,majorwidth=1,
+2019-09-26 11:12:17	INFO	plotms::::+	        majorstyle="",majorcolor="B0B0B0",showminorgrid=False,minorwidth=1,minorstyle="",
+2019-09-26 11:12:17	INFO	plotms::::+	        minorcolor="D0D0D0",showlegend=False,legendposition="",plotfile="",expformat="",
+2019-09-26 11:12:17	INFO	plotms::::+	        verbose=True,exprange="",highres=False,dpi=-1,width=-1,
+2019-09-26 11:12:17	INFO	plotms::::+	        height=-1,overwrite=False,showgui=True,clearplots=True,callib=[''],
+2019-09-26 11:12:17	INFO	plotms::::+	        headeritems="",showatm=False,showtsky=False)
+2019-09-26 11:12:17	SEVERE	plotms::::	Input file not found:
+2019-09-26 11:12:17	SEVERE	plotms::::+	/net/romulus.ap.dias.ie/romulus/murphp30_data/typeIII_int/scripts/L401003_SB076_uv.dppp.MS
+2019-09-26 11:12:17	INFO	plotms::::	##### End Task: plotms               #####
+2019-09-26 11:12:17	INFO	plotms::::+	##########################################
+2019-09-26 11:12:26	INFO	plotms::::	
+2019-09-26 11:12:26	INFO	plotms::::+	##########################################
+2019-09-26 11:12:26	INFO	plotms::::+	##### Begin Task: plotms             #####
+2019-09-26 11:12:26	INFO	plotms::::	plotms(vis="L401003_SB076_uv.dppp.MS/",gridrows=1,gridcols=1,rowindex=0,colindex=0,
+2019-09-26 11:12:26	INFO	plotms::::+	        plotindex=0,xaxis="U",xdatacolumn="",yaxis="V",ydatacolumn="corrected",
+2019-09-26 11:12:26	INFO	plotms::::+	        yaxislocation="",selectdata=True,field="",spw="",timerange="13:21:53.430",
+2019-09-26 11:12:26	INFO	plotms::::+	        uvrange="",antenna="",scan="",correlation="",array="",
+2019-09-26 11:12:26	INFO	plotms::::+	        observation="",intent="",feed="",msselect="",averagedata=True,
+2019-09-26 11:12:26	INFO	plotms::::+	        avgchannel="",avgtime="",avgscan=False,avgfield=False,avgbaseline=False,
+2019-09-26 11:12:26	INFO	plotms::::+	        avgantenna=False,avgspw=False,scalar=False,transform=True,freqframe="",
+2019-09-26 11:12:26	INFO	plotms::::+	        restfreq="",veldef="RADIO",shift=[0.0, 0.0],extendflag=False,extcorr=False,
+2019-09-26 11:12:26	INFO	plotms::::+	        extchannel=False,iteraxis="",xselfscale=False,yselfscale=False,xsharedaxis=False,
+2019-09-26 11:12:26	INFO	plotms::::+	        ysharedaxis=False,customsymbol=False,symbolshape="autoscaling",symbolsize=2,symbolcolor="0000ff",
+2019-09-26 11:12:26	INFO	plotms::::+	        symbolfill="fill",symboloutline=False,coloraxis="",customflaggedsymbol=False,flaggedsymbolshape="circle",
+2019-09-26 11:12:26	INFO	plotms::::+	        flaggedsymbolsize=2,flaggedsymbolcolor="ff0000",flaggedsymbolfill="fill",flaggedsymboloutline=False,xconnector="",
+2019-09-26 11:12:26	INFO	plotms::::+	        timeconnector=False,plotrange=[],title="",titlefont=0,xlabel="",
+2019-09-26 11:12:26	INFO	plotms::::+	        xaxisfont=0,ylabel="",yaxisfont=0,showmajorgrid=False,majorwidth=1,
+2019-09-26 11:12:26	INFO	plotms::::+	        majorstyle="",majorcolor="B0B0B0",showminorgrid=False,minorwidth=1,minorstyle="",
+2019-09-26 11:12:26	INFO	plotms::::+	        minorcolor="D0D0D0",showlegend=False,legendposition="",plotfile="",expformat="",
+2019-09-26 11:12:26	INFO	plotms::::+	        verbose=True,exprange="",highres=False,dpi=-1,width=-1,
+2019-09-26 11:12:26	INFO	plotms::::+	        height=-1,overwrite=False,showgui=True,clearplots=True,callib=[''],
+2019-09-26 11:12:26	INFO	plotms::::+	        headeritems="",showatm=False,showtsky=False)
+2019-09-26 11:12:28	INFO	PlotMS::params_changed	Updating: REDRAW, MSDATA, CACHE, AXES, CANVAS, DISPLAY, PAGEHEADER, ITERATION, LOG, PLOTMS_OPTIONS.
+2019-09-26 11:12:28	INFO	PlotMS::load_cache	Clearing the existing plotms cache.
+2019-09-26 11:12:28	INFO	PlotMS::load_cache	Clearing the existing plotms cache.
+2019-09-26 11:12:28	INFO	PlotMS::params_changed	Updating: REDRAW, MSDATA, CACHE, AXES, CANVAS, DISPLAY, PAGEHEADER, ITERATION, LOG, PLOTMS_OPTIONS.
+2019-09-26 11:12:28	INFO	PlotMS::load_cache	Clearing the existing plotms cache.
+2019-09-26 11:12:28	INFO	PlotMS::load_cache	Clearing the existing plotms cache.
+2019-09-26 11:12:29	INFO	PlotMS::params_changed	Updating: REDRAW, MSDATA, CACHE, AXES, CANVAS, DISPLAY, PAGEHEADER, ITERATION, LOG, PLOTMS_OPTIONS.
+2019-09-26 11:12:29	INFO	PlotMS::load_cache	Clearing the existing plotms cache.
+2019-09-26 11:12:29	INFO	PlotMS::load_cache	START     Current memory usage: 10339.6 kilobytes.
+2019-09-26 11:12:29	INFO	PlotMS::load_cache	Plot Data Transformations:
+2019-09-26 11:12:29	INFO	PlotMS::load_cache+	 Frame      = 
+2019-09-26 11:12:29	INFO	PlotMS::load_cache+	 VelDef     = RADIO
+2019-09-26 11:12:29	INFO	PlotMS::load_cache+	 RestFreq   = 0 MHz
+2019-09-26 11:12:29	INFO	PlotMS::load_cache+	 dX         = 0 arcsec
+2019-09-26 11:12:29	INFO	PlotMS::load_cache+	 dY         = 0 arcsec
+2019-09-26 11:12:29	INFO	PlotMS::load_cache+	 formStokes = false
+2019-09-26 11:12:29	INFO	PlotMS::load_cache	Data Averaging: None.
+2019-09-26 11:12:29	INFO	PlotMS::load_cache	Plot Data Calibration:
+2019-09-26 11:12:29	INFO	PlotMS::load_cache+	 Use Calibration    = 0
+2019-09-26 11:12:29	INFO	PlotMS::load_cache+	 Calibration Library   = 
+2019-09-26 11:12:29	INFO	PlotMS::load_cache	Caching for the new plot: V(31) vs. U(30)...
+2019-09-26 11:12:29	INFO	plotms::::	##### End Task: plotms               #####
+2019-09-26 11:12:29	INFO	plotms::::+	##########################################
+2019-09-26 11:12:31	INFO	PlotMS::load_cache	Loading page header cache
+2019-09-26 11:12:35	INFO	PlotMS::load_cache	Data selection will yield a total of 2664 plottable points (flagged and unflagged).
+2019-09-26 11:12:35	INFO	PlotMS::load_cache+	The plotms cache will require an estimated 2.4032e-05 GB of memory (9.02102 bytes/point).
+2019-09-26 11:12:35	INFO	PlotMS::load_cache+	This is 4.54905e-06% of the memory avail. to CASA (528.286 GB).
+2019-09-26 11:12:35	INFO	PlotMS::load_cache	Loading chunks......
+2019-09-26 11:12:36	INFO	PlotMS::load_cache	Generating the plot mask.
+2019-09-26 11:12:36	INFO	PlotMS::load_cache	refTime = 2015/10/17/00:00:00.0
+2019-09-26 11:12:36	INFO	PlotMS::load_cache	Finished loading.
+2019-09-26 11:12:36	INFO	PlotMS::load_cache	Setting up iteration indexing (if necessary), and calculating plot ranges.
+2019-09-26 11:12:36	INFO	PlotMS::load_cache	Axes ranges:
+2019-09-26 11:12:36	INFO	PlotMS::load_cache+	U: -27134.2 to 14895.7 (unflagged); ; -62413 to 33077.3 (flagged).
+2019-09-26 11:12:36	INFO	PlotMS::load_cache+	V: -14238.6 to 23653.5 (unflagged); -32512.4 to 41927.3(flagged).
+2019-09-26 11:12:36	WARN	PlotMS::load_cache	For a UV plot, plotms will plot the conjugates of the points in the MS.
+2019-09-26 11:12:36	WARN	PlotMS::load_cache+	However, the Locate and Flag functions will not work for these conjugate points!
+2019-09-26 11:12:36	WARN	PlotMS::load_cache+	The global ranges above do not include the conjugates.
+2019-09-26 11:12:36	INFO	PlotMS::load_cache	Finished indexing.
+2019-09-26 11:12:36	INFO	PlotMS::plot	Plotting 561 unflagged points.
+2019-09-26 11:12:29	INFO	PlotMS::load_cache	END       Time: +7 seconds.  Memory: +2690.11 kilobytes.
+2019-09-26 11:13:06	INFO	PlotMS::params_changed	Updating: REDRAW, CACHE.
+2019-09-26 11:13:06	INFO	PlotMS::load_cache	START     Current memory usage: 12889.7 kilobytes.
+2019-09-26 11:13:06	INFO	PlotMS::load_cache	Plot Data Transformations:
+2019-09-26 11:13:06	INFO	PlotMS::load_cache+	 Frame      = 
+2019-09-26 11:13:06	INFO	PlotMS::load_cache+	 VelDef     = RADIO
+2019-09-26 11:13:06	INFO	PlotMS::load_cache+	 RestFreq   = 0 MHz
+2019-09-26 11:13:06	INFO	PlotMS::load_cache+	 dX         = 0 arcsec
+2019-09-26 11:13:06	INFO	PlotMS::load_cache+	 dY         = 0 arcsec
+2019-09-26 11:13:06	INFO	PlotMS::load_cache+	 formStokes = false
+2019-09-26 11:13:06	INFO	PlotMS::load_cache	Data Averaging: None.
+2019-09-26 11:13:06	INFO	PlotMS::load_cache	Plot Data Calibration:
+2019-09-26 11:13:06	INFO	PlotMS::load_cache+	 Use Calibration    = 0
+2019-09-26 11:13:06	INFO	PlotMS::load_cache+	 Calibration Library   = 
+2019-09-26 11:13:06	INFO	PlotMS::load_cache	Caching for the new plot: Vwave(34) vs. Uwave(33)...
+2019-09-26 11:13:07	INFO	PlotMS::load_cache	Loading page header cache
+2019-09-26 11:13:12	INFO	PlotMS::load_cache	Data selection will yield a total of 2664 plottable points (flagged and unflagged).
+2019-09-26 11:13:12	INFO	PlotMS::load_cache+	The plotms cache will require an estimated 3.4688e-05 GB of memory (13.021 bytes/point).
+2019-09-26 11:13:12	INFO	PlotMS::load_cache+	This is 6.56614e-06% of the memory avail. to CASA (528.286 GB).
+2019-09-26 11:13:12	INFO	PlotMS::load_cache	Loading chunks......
+2019-09-26 11:13:12	INFO	PlotMS::load_cache	Generating the plot mask.
+2019-09-26 11:13:12	INFO	PlotMS::load_cache	refTime = 2015/10/17/00:00:00.0
+2019-09-26 11:13:12	INFO	PlotMS::load_cache	Finished loading.
+2019-09-26 11:13:12	INFO	PlotMS::load_cache	Setting up iteration indexing (if necessary), and calculating plot ranges.
+2019-09-26 11:13:12	INFO	PlotMS::load_cache	Axes ranges:
+2019-09-26 11:13:12	INFO	PlotMS::load_cache+	Uwave: -3146.08 to 1727.08 (unflagged); ; -7236.5 to 3835.16 (flagged).
+2019-09-26 11:13:12	INFO	PlotMS::load_cache+	Vwave: -1650.9 to 2742.52 (unflagged); -3769.66 to 4861.27(flagged).
+2019-09-26 11:13:12	WARN	PlotMS::load_cache	For a UV plot, plotms will plot the conjugates of the points in the MS.
+2019-09-26 11:13:12	WARN	PlotMS::load_cache+	However, the Locate and Flag functions will not work for these conjugate points!
+2019-09-26 11:13:12	WARN	PlotMS::load_cache+	The global ranges above do not include the conjugates.
+2019-09-26 11:13:12	INFO	PlotMS::load_cache	Finished indexing.
+2019-09-26 11:13:12	INFO	PlotMS::plot	Plotting 561 unflagged points.
+2019-09-26 11:13:06	INFO	PlotMS::load_cache	END       Time: +7 seconds.  Memory: +70.2031 kilobytes.
+2019-09-26 11:14:38	INFO	PlotMS::params_changed	Updating: REDRAW, MSDATA.
+2019-09-26 11:14:38	INFO	PlotMS::load_cache	Clearing the existing plotms cache.
+2019-09-26 11:14:38	INFO	PlotMS::load_cache	START     Current memory usage: 12994 kilobytes.
+2019-09-26 11:14:38	INFO	PlotMS::load_cache	Plot Data Transformations:
+2019-09-26 11:14:38	INFO	PlotMS::load_cache+	 Frame      = 
+2019-09-26 11:14:38	INFO	PlotMS::load_cache+	 VelDef     = RADIO
+2019-09-26 11:14:38	INFO	PlotMS::load_cache+	 RestFreq   = 0 MHz
+2019-09-26 11:14:38	INFO	PlotMS::load_cache+	 dX         = 0 arcsec
+2019-09-26 11:14:38	INFO	PlotMS::load_cache+	 dY         = 0 arcsec
+2019-09-26 11:14:38	INFO	PlotMS::load_cache+	 formStokes = false
+2019-09-26 11:14:38	INFO	PlotMS::load_cache	Data Averaging: None.
+2019-09-26 11:14:38	INFO	PlotMS::load_cache	Plot Data Calibration:
+2019-09-26 11:14:38	INFO	PlotMS::load_cache+	 Use Calibration    = 0
+2019-09-26 11:14:38	INFO	PlotMS::load_cache+	 Calibration Library   = 
+2019-09-26 11:14:38	INFO	PlotMS::load_cache	Caching for the new plot: Vwave(34) vs. Uwave(33)...
+2019-09-26 11:14:39	INFO	PlotMS::load_cache	Loading page header cache
+2019-09-26 11:14:44	INFO	PlotMS::load_cache	Data selection will yield a total of 2664 plottable points (flagged and unflagged).
+2019-09-26 11:14:44	INFO	PlotMS::load_cache+	The plotms cache will require an estimated 2.4032e-05 GB of memory (9.02102 bytes/point).
+2019-09-26 11:14:44	INFO	PlotMS::load_cache+	This is 4.54905e-06% of the memory avail. to CASA (528.286 GB).
+2019-09-26 11:14:44	INFO	PlotMS::load_cache	Loading chunks......
+2019-09-26 11:14:44	INFO	PlotMS::load_cache	Generating the plot mask.
+2019-09-26 11:14:44	INFO	PlotMS::load_cache	refTime = 2015/10/17/00:00:00.0
+2019-09-26 11:14:44	INFO	PlotMS::load_cache	Finished loading.
+2019-09-26 11:14:44	INFO	PlotMS::load_cache	Setting up iteration indexing (if necessary), and calculating plot ranges.
+2019-09-26 11:14:44	INFO	PlotMS::load_cache	Axes ranges:
+2019-09-26 11:14:44	INFO	PlotMS::load_cache+	Uwave: -3146.08 to 1727.08 (unflagged); ; -7236.5 to 3835.16 (flagged).
+2019-09-26 11:14:44	INFO	PlotMS::load_cache+	Vwave: -1650.9 to 2742.52 (unflagged); -3769.66 to 4861.27(flagged).
+2019-09-26 11:14:44	WARN	PlotMS::load_cache	For a UV plot, plotms will plot the conjugates of the points in the MS.
+2019-09-26 11:14:44	WARN	PlotMS::load_cache+	However, the Locate and Flag functions will not work for these conjugate points!
+2019-09-26 11:14:44	WARN	PlotMS::load_cache+	The global ranges above do not include the conjugates.
+2019-09-26 11:14:44	INFO	PlotMS::load_cache	Finished indexing.
+2019-09-26 11:14:44	INFO	PlotMS::plot	Plotting 561 unflagged points.
+2019-09-26 11:14:38	INFO	PlotMS::load_cache	END       Time: +6 seconds.  Memory: +58.3125 kilobytes.
+2019-09-26 11:18:01	INFO	plotms::::	
+2019-09-26 11:18:01	INFO	plotms::::+	##########################################
+2019-09-26 11:18:01	INFO	plotms::::+	##### Begin Task: plotms             #####
+2019-09-26 11:18:01	INFO	plotms::::	plotms(vis="L401003_SB076_uv.dppp.MS/",gridrows=1,gridcols=1,rowindex=0,colindex=0,
+2019-09-26 11:18:01	INFO	plotms::::+	        plotindex=0,xaxis="U",xdatacolumn="",yaxis="V",ydatacolumn="corrected",
+2019-09-26 11:18:01	INFO	plotms::::+	        yaxislocation="",selectdata=True,field="",spw="",timerange="13:21:53.433561",
+2019-09-26 11:18:01	INFO	plotms::::+	        uvrange="",antenna="",scan="",correlation="",array="",
+2019-09-26 11:18:01	INFO	plotms::::+	        observation="",intent="",feed="",msselect="",averagedata=True,
+2019-09-26 11:18:01	INFO	plotms::::+	        avgchannel="",avgtime="",avgscan=False,avgfield=False,avgbaseline=False,
+2019-09-26 11:18:01	INFO	plotms::::+	        avgantenna=False,avgspw=False,scalar=False,transform=True,freqframe="",
+2019-09-26 11:18:01	INFO	plotms::::+	        restfreq="",veldef="RADIO",shift=[0.0, 0.0],extendflag=False,extcorr=False,
+2019-09-26 11:18:01	INFO	plotms::::+	        extchannel=False,iteraxis="",xselfscale=False,yselfscale=False,xsharedaxis=False,
+2019-09-26 11:18:01	INFO	plotms::::+	        ysharedaxis=False,customsymbol=False,symbolshape="autoscaling",symbolsize=2,symbolcolor="0000ff",
+2019-09-26 11:18:01	INFO	plotms::::+	        symbolfill="fill",symboloutline=False,coloraxis="",customflaggedsymbol=False,flaggedsymbolshape="circle",
+2019-09-26 11:18:01	INFO	plotms::::+	        flaggedsymbolsize=2,flaggedsymbolcolor="ff0000",flaggedsymbolfill="fill",flaggedsymboloutline=False,xconnector="",
+2019-09-26 11:18:01	INFO	plotms::::+	        timeconnector=False,plotrange=[],title="",titlefont=0,xlabel="",
+2019-09-26 11:18:01	INFO	plotms::::+	        xaxisfont=0,ylabel="",yaxisfont=0,showmajorgrid=False,majorwidth=1,
+2019-09-26 11:18:01	INFO	plotms::::+	        majorstyle="",majorcolor="B0B0B0",showminorgrid=False,minorwidth=1,minorstyle="",
+2019-09-26 11:18:01	INFO	plotms::::+	        minorcolor="D0D0D0",showlegend=False,legendposition="",plotfile="",expformat="",
+2019-09-26 11:18:01	INFO	plotms::::+	        verbose=True,exprange="",highres=False,dpi=-1,width=-1,
+2019-09-26 11:18:01	INFO	plotms::::+	        height=-1,overwrite=False,showgui=True,clearplots=True,callib=[''],
+2019-09-26 11:18:01	INFO	plotms::::+	        headeritems="",showatm=False,showtsky=False)
+2019-09-26 11:18:01	INFO	PlotMS::params_changed	Updating: REDRAW, MSDATA, CACHE, AXES, CANVAS, DISPLAY, PAGEHEADER, ITERATION, LOG, PLOTMS_OPTIONS.
+2019-09-26 11:18:01	INFO	PlotMS::load_cache	Clearing the existing plotms cache.
+2019-09-26 11:18:01	INFO	PlotMS::load_cache	START     Current memory usage: 12014.4 kilobytes.
+2019-09-26 11:18:01	INFO	PlotMS::load_cache	Plot Data Transformations:
+2019-09-26 11:18:01	INFO	PlotMS::load_cache+	 Frame      = 
+2019-09-26 11:18:01	INFO	PlotMS::load_cache+	 VelDef     = RADIO
+2019-09-26 11:18:01	INFO	PlotMS::load_cache+	 RestFreq   = 0 MHz
+2019-09-26 11:18:01	INFO	PlotMS::load_cache+	 dX         = 0 arcsec
+2019-09-26 11:18:01	INFO	PlotMS::load_cache+	 dY         = 0 arcsec
+2019-09-26 11:18:01	INFO	PlotMS::load_cache+	 formStokes = false
+2019-09-26 11:18:01	INFO	PlotMS::load_cache	Data Averaging: None.
+2019-09-26 11:18:01	INFO	PlotMS::load_cache	Plot Data Calibration:
+2019-09-26 11:18:01	INFO	PlotMS::load_cache+	 Use Calibration    = 0
+2019-09-26 11:18:01	INFO	PlotMS::load_cache+	 Calibration Library   = 
+2019-09-26 11:18:01	INFO	PlotMS::load_cache	Caching for the new plot: V(31) vs. U(30)...
+2019-09-26 11:18:01	INFO	plotms::::	##### End Task: plotms               #####
+2019-09-26 11:18:01	INFO	plotms::::+	##########################################
+2019-09-26 11:18:03	INFO	PlotMS::load_cache	Loading page header cache
+2019-09-26 11:18:08	INFO	PlotMS::load_cache	Data selection will yield a total of 2664 plottable points (flagged and unflagged).
+2019-09-26 11:18:08	INFO	PlotMS::load_cache+	The plotms cache will require an estimated 2.4032e-05 GB of memory (9.02102 bytes/point).
+2019-09-26 11:18:08	INFO	PlotMS::load_cache+	This is 4.54905e-06% of the memory avail. to CASA (528.286 GB).
+2019-09-26 11:18:08	INFO	PlotMS::load_cache	Loading chunks......
+2019-09-26 11:18:08	INFO	PlotMS::load_cache	Generating the plot mask.
+2019-09-26 11:18:08	INFO	PlotMS::load_cache	refTime = 2015/10/17/00:00:00.0
+2019-09-26 11:18:08	INFO	PlotMS::load_cache	Finished loading.
+2019-09-26 11:18:08	INFO	PlotMS::load_cache	Setting up iteration indexing (if necessary), and calculating plot ranges.
+2019-09-26 11:18:08	INFO	PlotMS::load_cache	Axes ranges:
+2019-09-26 11:18:08	INFO	PlotMS::load_cache+	U: -27134.2 to 14895.7 (unflagged); ; -62413 to 33077.3 (flagged).
+2019-09-26 11:18:08	INFO	PlotMS::load_cache+	V: -14238.6 to 23653.5 (unflagged); -32512.4 to 41927.3(flagged).
+2019-09-26 11:18:08	WARN	PlotMS::load_cache	For a UV plot, plotms will plot the conjugates of the points in the MS.
+2019-09-26 11:18:08	WARN	PlotMS::load_cache+	However, the Locate and Flag functions will not work for these conjugate points!
+2019-09-26 11:18:08	WARN	PlotMS::load_cache+	The global ranges above do not include the conjugates.
+2019-09-26 11:18:08	INFO	PlotMS::load_cache	Finished indexing.
+2019-09-26 11:18:08	INFO	PlotMS::plot	Plotting 561 unflagged points.
+2019-09-26 11:18:01	INFO	PlotMS::load_cache	END       Time: +7 seconds.  Memory: +1392.72 kilobytes.
+2019-09-26 11:19:14	INFO	PlotMS::params_changed	Updating: REDRAW, CACHE.
+2019-09-26 11:19:14	INFO	PlotMS::load_cache	START     Current memory usage: 12931.1 kilobytes.
+2019-09-26 11:19:14	INFO	PlotMS::load_cache	Plot Data Transformations:
+2019-09-26 11:19:14	INFO	PlotMS::load_cache+	 Frame      = 
+2019-09-26 11:19:14	INFO	PlotMS::load_cache+	 VelDef     = RADIO
+2019-09-26 11:19:14	INFO	PlotMS::load_cache+	 RestFreq   = 0 MHz
+2019-09-26 11:19:14	INFO	PlotMS::load_cache+	 dX         = 0 arcsec
+2019-09-26 11:19:14	INFO	PlotMS::load_cache+	 dY         = 0 arcsec
+2019-09-26 11:19:14	INFO	PlotMS::load_cache+	 formStokes = false
+2019-09-26 11:19:14	INFO	PlotMS::load_cache	Data Averaging: None.
+2019-09-26 11:19:14	INFO	PlotMS::load_cache	Plot Data Calibration:
+2019-09-26 11:19:14	INFO	PlotMS::load_cache+	 Use Calibration    = 0
+2019-09-26 11:19:14	INFO	PlotMS::load_cache+	 Calibration Library   = 
+2019-09-26 11:19:14	INFO	PlotMS::load_cache	Caching for the new plot: W(32) vs. U(30)...
+2019-09-26 11:19:15	INFO	PlotMS::load_cache	Loading page header cache
+2019-09-26 11:19:20	INFO	PlotMS::load_cache	Data selection will yield a total of 2664 plottable points (flagged and unflagged).
+2019-09-26 11:19:20	INFO	PlotMS::load_cache+	The plotms cache will require an estimated 2.936e-05 GB of memory (11.021 bytes/point).
+2019-09-26 11:19:20	INFO	PlotMS::load_cache+	This is 5.5576e-06% of the memory avail. to CASA (528.286 GB).
+2019-09-26 11:19:20	INFO	PlotMS::load_cache	Loading chunks......
+2019-09-26 11:19:20	INFO	PlotMS::load_cache	Generating the plot mask.
+2019-09-26 11:19:20	INFO	PlotMS::load_cache	refTime = 2015/10/17/00:00:00.0
+2019-09-26 11:19:20	INFO	PlotMS::load_cache	Finished loading.
+2019-09-26 11:19:20	INFO	PlotMS::load_cache	Setting up iteration indexing (if necessary), and calculating plot ranges.
+2019-09-26 11:19:20	INFO	PlotMS::load_cache	Axes ranges:
+2019-09-26 11:19:20	INFO	PlotMS::load_cache+	U: -27134.2 to 14895.7 (unflagged); ; -62413 to 33077.3 (flagged).
+2019-09-26 11:19:20	INFO	PlotMS::load_cache+	W: -31699.6 to 20465.1 (unflagged); -62202.3 to 50967.7(flagged).
+2019-09-26 11:19:20	INFO	PlotMS::load_cache	Finished indexing.
+2019-09-26 11:19:20	INFO	PlotMS::plot	Plotting 561 unflagged points.
+2019-09-26 11:19:14	INFO	PlotMS::load_cache	END       Time: +7 seconds.  Memory: +46.4375 kilobytes.
+2019-09-26 11:19:55	INFO	plotms::::	
+2019-09-26 11:19:55	INFO	plotms::::+	##########################################
+2019-09-26 11:19:55	INFO	plotms::::+	##### Begin Task: plotms             #####
+2019-09-26 11:19:55	INFO	plotms::::	plotms(vis="L401003_SB076_uv.dppp.MS/",gridrows=1,gridcols=1,rowindex=0,colindex=0,
+2019-09-26 11:19:55	INFO	plotms::::+	        plotindex=0,xaxis="U",xdatacolumn="",yaxis="V",ydatacolumn="corrected",
+2019-09-26 11:19:55	INFO	plotms::::+	        yaxislocation="",selectdata=True,field="",spw="",timerange="13:21:53.433561",
+2019-09-26 11:19:55	INFO	plotms::::+	        uvrange="",antenna="",scan="",correlation="",array="",
+2019-09-26 11:19:55	INFO	plotms::::+	        observation="",intent="",feed="",msselect="",averagedata=True,
+2019-09-26 11:19:55	INFO	plotms::::+	        avgchannel="",avgtime="",avgscan=False,avgfield=False,avgbaseline=False,
+2019-09-26 11:19:55	INFO	plotms::::+	        avgantenna=False,avgspw=False,scalar=False,transform=True,freqframe="",
+2019-09-26 11:19:55	INFO	plotms::::+	        restfreq="",veldef="RADIO",shift=[0.0, 0.0],extendflag=False,extcorr=False,
+2019-09-26 11:19:55	INFO	plotms::::+	        extchannel=False,iteraxis="",xselfscale=False,yselfscale=False,xsharedaxis=False,
+2019-09-26 11:19:55	INFO	plotms::::+	        ysharedaxis=False,customsymbol=False,symbolshape="autoscaling",symbolsize=2,symbolcolor="0000ff",
+2019-09-26 11:19:55	INFO	plotms::::+	        symbolfill="fill",symboloutline=False,coloraxis="",customflaggedsymbol=False,flaggedsymbolshape="circle",
+2019-09-26 11:19:55	INFO	plotms::::+	        flaggedsymbolsize=2,flaggedsymbolcolor="ff0000",flaggedsymbolfill="fill",flaggedsymboloutline=False,xconnector="",
+2019-09-26 11:19:55	INFO	plotms::::+	        timeconnector=False,plotrange=[],title="",titlefont=0,xlabel="",
+2019-09-26 11:19:55	INFO	plotms::::+	        xaxisfont=0,ylabel="",yaxisfont=0,showmajorgrid=False,majorwidth=1,
+2019-09-26 11:19:55	INFO	plotms::::+	        majorstyle="",majorcolor="B0B0B0",showminorgrid=False,minorwidth=1,minorstyle="",
+2019-09-26 11:19:55	INFO	plotms::::+	        minorcolor="D0D0D0",showlegend=False,legendposition="",plotfile="",expformat="",
+2019-09-26 11:19:55	INFO	plotms::::+	        verbose=True,exprange="",highres=False,dpi=-1,width=-1,
+2019-09-26 11:19:55	INFO	plotms::::+	        height=-1,overwrite=False,showgui=True,clearplots=True,callib=[''],
+2019-09-26 11:19:55	INFO	plotms::::+	        headeritems="",showatm=False,showtsky=False)
+2019-09-26 11:19:55	INFO	PlotMS::params_changed	Updating: REDRAW, MSDATA, CACHE, AXES, CANVAS, DISPLAY, PAGEHEADER, ITERATION, LOG, PLOTMS_OPTIONS.
+2019-09-26 11:19:55	INFO	PlotMS::load_cache	Clearing the existing plotms cache.
+2019-09-26 11:19:55	INFO	PlotMS::load_cache	START     Current memory usage: 12155.1 kilobytes.
+2019-09-26 11:19:55	INFO	PlotMS::load_cache	Plot Data Transformations:
+2019-09-26 11:19:55	INFO	PlotMS::load_cache+	 Frame      = 
+2019-09-26 11:19:55	INFO	PlotMS::load_cache+	 VelDef     = RADIO
+2019-09-26 11:19:55	INFO	PlotMS::load_cache+	 RestFreq   = 0 MHz
+2019-09-26 11:19:55	INFO	PlotMS::load_cache+	 dX         = 0 arcsec
+2019-09-26 11:19:55	INFO	PlotMS::load_cache+	 dY         = 0 arcsec
+2019-09-26 11:19:55	INFO	PlotMS::load_cache+	 formStokes = false
+2019-09-26 11:19:55	INFO	PlotMS::load_cache	Data Averaging: None.
+2019-09-26 11:19:55	INFO	PlotMS::load_cache	Plot Data Calibration:
+2019-09-26 11:19:55	INFO	PlotMS::load_cache+	 Use Calibration    = 0
+2019-09-26 11:19:55	INFO	PlotMS::load_cache+	 Calibration Library   = 
+2019-09-26 11:19:55	INFO	PlotMS::load_cache	Caching for the new plot: V(31) vs. U(30)...
+2019-09-26 11:19:55	INFO	plotms::::	##### End Task: plotms               #####
+2019-09-26 11:19:55	INFO	plotms::::+	##########################################
+2019-09-26 11:19:56	INFO	PlotMS::load_cache	Loading page header cache
+2019-09-26 11:20:03	INFO	PlotMS::load_cache	Data selection will yield a total of 2664 plottable points (flagged and unflagged).
+2019-09-26 11:20:03	INFO	PlotMS::load_cache+	The plotms cache will require an estimated 2.4032e-05 GB of memory (9.02102 bytes/point).
+2019-09-26 11:20:03	INFO	PlotMS::load_cache+	This is 4.54905e-06% of the memory avail. to CASA (528.286 GB).
+2019-09-26 11:20:03	INFO	PlotMS::load_cache	Loading chunks......
+2019-09-26 11:20:04	INFO	PlotMS::load_cache	Generating the plot mask.
+2019-09-26 11:20:04	INFO	PlotMS::load_cache	refTime = 2015/10/17/00:00:00.0
+2019-09-26 11:20:04	INFO	PlotMS::load_cache	Finished loading.
+2019-09-26 11:20:04	INFO	PlotMS::load_cache	Setting up iteration indexing (if necessary), and calculating plot ranges.
+2019-09-26 11:20:04	INFO	PlotMS::load_cache	Axes ranges:
+2019-09-26 11:20:04	INFO	PlotMS::load_cache+	U: -27134.2 to 14895.7 (unflagged); ; -62413 to 33077.3 (flagged).
+2019-09-26 11:20:04	INFO	PlotMS::load_cache+	V: -14238.6 to 23653.5 (unflagged); -32512.4 to 41927.3(flagged).
+2019-09-26 11:20:04	WARN	PlotMS::load_cache	For a UV plot, plotms will plot the conjugates of the points in the MS.
+2019-09-26 11:20:04	WARN	PlotMS::load_cache+	However, the Locate and Flag functions will not work for these conjugate points!
+2019-09-26 11:20:04	WARN	PlotMS::load_cache+	The global ranges above do not include the conjugates.
+2019-09-26 11:20:04	INFO	PlotMS::load_cache	Finished indexing.
+2019-09-26 11:20:04	INFO	PlotMS::plot	Plotting 561 unflagged points.
+2019-09-26 11:19:55	INFO	PlotMS::load_cache	END       Time: +9 seconds.  Memory: +1341.83 kilobytes.
+2019-09-26 11:26:14	INFO	PlotMS::params_changed	Updating: REDRAW, MSDATA.
+2019-09-26 11:26:14	INFO	PlotMS::load_cache	Clearing the existing plotms cache.
+2019-09-26 11:26:14	INFO	PlotMS::load_cache	START     Current memory usage: 12846.2 kilobytes.
+2019-09-26 11:26:14	INFO	PlotMS::load_cache	Plot Data Transformations:
+2019-09-26 11:26:14	INFO	PlotMS::load_cache+	 Frame      = 
+2019-09-26 11:26:14	INFO	PlotMS::load_cache+	 VelDef     = RADIO
+2019-09-26 11:26:14	INFO	PlotMS::load_cache+	 RestFreq   = 0 MHz
+2019-09-26 11:26:14	INFO	PlotMS::load_cache+	 dX         = 0 arcsec
+2019-09-26 11:26:14	INFO	PlotMS::load_cache+	 dY         = 0 arcsec
+2019-09-26 11:26:14	INFO	PlotMS::load_cache+	 formStokes = false
+2019-09-26 11:26:14	INFO	PlotMS::load_cache	Data Averaging: None.
+2019-09-26 11:26:14	INFO	PlotMS::load_cache	Plot Data Calibration:
+2019-09-26 11:26:14	INFO	PlotMS::load_cache+	 Use Calibration    = 0
+2019-09-26 11:26:14	INFO	PlotMS::load_cache+	 Calibration Library   = 
+2019-09-26 11:26:14	INFO	PlotMS::load_cache	Caching for the new plot: V(31) vs. U(30)...
+2019-09-26 11:26:15	INFO	PlotMS::load_cache	Loading page header cache
+2019-09-26 11:26:20	INFO	PlotMS::load_cache	Data selection will yield a total of 2664 plottable points (flagged and unflagged).
+2019-09-26 11:26:20	INFO	PlotMS::load_cache+	The plotms cache will require an estimated 2.4032e-05 GB of memory (9.02102 bytes/point).
+2019-09-26 11:26:20	INFO	PlotMS::load_cache+	This is 4.54905e-06% of the memory avail. to CASA (528.286 GB).
+2019-09-26 11:26:20	INFO	PlotMS::load_cache	Loading chunks......
+2019-09-26 11:26:20	INFO	PlotMS::load_cache	Generating the plot mask.
+2019-09-26 11:26:20	INFO	PlotMS::load_cache	refTime = 2015/10/17/00:00:00.0
+2019-09-26 11:26:20	INFO	PlotMS::load_cache	Finished loading.
+2019-09-26 11:26:20	INFO	PlotMS::load_cache	Setting up iteration indexing (if necessary), and calculating plot ranges.
+2019-09-26 11:26:20	INFO	PlotMS::load_cache	Axes ranges:
+2019-09-26 11:26:20	INFO	PlotMS::load_cache+	U: -26498.7 to 14498.8 (unflagged); ; -62226.1 to 33943.3 (flagged).
+2019-09-26 11:26:20	INFO	PlotMS::load_cache+	V: -14184.8 to 23554.8 (unflagged); -32412.4 to 41782.4(flagged).
+2019-09-26 11:26:20	WARN	PlotMS::load_cache	For a UV plot, plotms will plot the conjugates of the points in the MS.
+2019-09-26 11:26:20	WARN	PlotMS::load_cache+	However, the Locate and Flag functions will not work for these conjugate points!
+2019-09-26 11:26:20	WARN	PlotMS::load_cache+	The global ranges above do not include the conjugates.
+2019-09-26 11:26:20	INFO	PlotMS::load_cache	Finished indexing.
+2019-09-26 11:26:20	INFO	PlotMS::plot	Plotting 561 unflagged points.
+2019-09-26 11:26:14	INFO	PlotMS::load_cache	END       Time: +7 seconds.  Memory: +103.391 kilobytes.
+2019-09-26 11:26:58	INFO	PlotMS::params_changed	Updating: REDRAW, CACHE.
+2019-09-26 11:26:58	INFO	PlotMS::load_cache	START     Current memory usage: 13028.8 kilobytes.
+2019-09-26 11:26:58	INFO	PlotMS::load_cache	Plot Data Transformations:
+2019-09-26 11:26:58	INFO	PlotMS::load_cache+	 Frame      = 
+2019-09-26 11:26:58	INFO	PlotMS::load_cache+	 VelDef     = RADIO
+2019-09-26 11:26:58	INFO	PlotMS::load_cache+	 RestFreq   = 0 MHz
+2019-09-26 11:26:58	INFO	PlotMS::load_cache+	 dX         = 0 arcsec
+2019-09-26 11:26:58	INFO	PlotMS::load_cache+	 dY         = 0 arcsec
+2019-09-26 11:26:58	INFO	PlotMS::load_cache+	 formStokes = false
+2019-09-26 11:26:58	INFO	PlotMS::load_cache	Data Averaging: None.
+2019-09-26 11:26:58	INFO	PlotMS::load_cache	Plot Data Calibration:
+2019-09-26 11:26:58	INFO	PlotMS::load_cache+	 Use Calibration    = 0
+2019-09-26 11:26:58	INFO	PlotMS::load_cache+	 Calibration Library   = 
+2019-09-26 11:26:58	INFO	PlotMS::load_cache	Caching for the new plot: U(30) vs. V(31)...
+2019-09-26 11:26:58	INFO	PlotMS::load_cache	Generating the plot mask.
+2019-09-26 11:26:58	INFO	PlotMS::load_cache	refTime = 2015/10/17/00:00:00.0
+2019-09-26 11:26:58	INFO	PlotMS::load_cache	Finished loading.
+2019-09-26 11:26:58	INFO	PlotMS::load_cache	Setting up iteration indexing (if necessary), and calculating plot ranges.
+2019-09-26 11:26:58	INFO	PlotMS::load_cache	Axes ranges:
+2019-09-26 11:26:58	INFO	PlotMS::load_cache+	V: -14184.8 to 23554.8 (unflagged); ; -32412.4 to 41782.4 (flagged).
+2019-09-26 11:26:58	INFO	PlotMS::load_cache+	U: -26498.7 to 14498.8 (unflagged); -62226.1 to 33943.3(flagged).
+2019-09-26 11:26:58	WARN	PlotMS::load_cache	For a UV plot, plotms will plot the conjugates of the points in the MS.
+2019-09-26 11:26:58	WARN	PlotMS::load_cache+	However, the Locate and Flag functions will not work for these conjugate points!
+2019-09-26 11:26:58	WARN	PlotMS::load_cache+	The global ranges above do not include the conjugates.
+2019-09-26 11:26:58	INFO	PlotMS::load_cache	Finished indexing.
+2019-09-26 11:26:58	INFO	PlotMS::plot	Plotting 561 unflagged points.
+2019-09-26 11:26:58	INFO	PlotMS::load_cache	END       Time: +1 seconds.  Memory: +4.85938 kilobytes.
+2019-09-26 11:27:35	INFO	PlotMS::params_changed	Updating: REDRAW, CACHE.
+2019-09-26 11:27:35	INFO	PlotMS::load_cache	START     Current memory usage: 13042 kilobytes.
+2019-09-26 11:27:35	INFO	PlotMS::load_cache	Plot Data Transformations:
+2019-09-26 11:27:35	INFO	PlotMS::load_cache+	 Frame      = 
+2019-09-26 11:27:35	INFO	PlotMS::load_cache+	 VelDef     = RADIO
+2019-09-26 11:27:35	INFO	PlotMS::load_cache+	 RestFreq   = 0 MHz
+2019-09-26 11:27:35	INFO	PlotMS::load_cache+	 dX         = 0 arcsec
+2019-09-26 11:27:35	INFO	PlotMS::load_cache+	 dY         = 0 arcsec
+2019-09-26 11:27:35	INFO	PlotMS::load_cache+	 formStokes = false
+2019-09-26 11:27:35	INFO	PlotMS::load_cache	Data Averaging: None.
+2019-09-26 11:27:35	INFO	PlotMS::load_cache	Plot Data Calibration:
+2019-09-26 11:27:35	INFO	PlotMS::load_cache+	 Use Calibration    = 0
+2019-09-26 11:27:35	INFO	PlotMS::load_cache+	 Calibration Library   = 
+2019-09-26 11:27:35	INFO	PlotMS::load_cache	Caching for the new plot: V(31) vs. U(30)...
+2019-09-26 11:27:35	INFO	PlotMS::load_cache	Generating the plot mask.
+2019-09-26 11:27:35	INFO	PlotMS::load_cache	refTime = 2015/10/17/00:00:00.0
+2019-09-26 11:27:35	INFO	PlotMS::load_cache	Finished loading.
+2019-09-26 11:27:35	INFO	PlotMS::load_cache	Setting up iteration indexing (if necessary), and calculating plot ranges.
+2019-09-26 11:27:35	INFO	PlotMS::load_cache	Axes ranges:
+2019-09-26 11:27:35	INFO	PlotMS::load_cache+	U: -26498.7 to 14498.8 (unflagged); ; -62226.1 to 33943.3 (flagged).
+2019-09-26 11:27:35	INFO	PlotMS::load_cache+	V: -14184.8 to 23554.8 (unflagged); -32412.4 to 41782.4(flagged).
+2019-09-26 11:27:35	WARN	PlotMS::load_cache	For a UV plot, plotms will plot the conjugates of the points in the MS.
+2019-09-26 11:27:35	WARN	PlotMS::load_cache+	However, the Locate and Flag functions will not work for these conjugate points!
+2019-09-26 11:27:35	WARN	PlotMS::load_cache+	The global ranges above do not include the conjugates.
+2019-09-26 11:27:35	INFO	PlotMS::load_cache	Finished indexing.
+2019-09-26 11:27:35	INFO	PlotMS::plot	Plotting 561 unflagged points.
+2019-09-26 11:27:35	INFO	PlotMS::load_cache	END       Time: +0 seconds.  Memory: +0.859375 kilobytes.
+2019-09-26 11:29:35	INFO	PlotMS::params_changed	Updating: REDRAW, AXES.
+2019-09-26 11:29:35	INFO	PlotMS::plot	Plotting 561 unflagged points.
+2019-09-26 11:29:35	INFO	PlotMS::plot	Plotting 561 unflagged points.
+2019-09-26 11:29:47	INFO	PlotMS::params_changed	Updating: REDRAW, AXES.
+2019-09-26 11:29:47	INFO	PlotMS::plot	Plotting 561 unflagged points.
+2019-09-26 11:29:47	INFO	PlotMS::plot	Plotting 561 unflagged points.
+2019-09-26 11:29:52	INFO	PlotMS::params_changed	Updating: REDRAW, AXES.
+2019-09-26 11:29:52	INFO	PlotMS::plot	Plotting 561 unflagged points.
+2019-09-26 11:29:52	INFO	PlotMS::plot	Plotting 561 unflagged points.
+2019-09-26 11:29:56	INFO	PlotMS::params_changed	Updating: REDRAW, AXES.
+2019-09-26 11:29:56	INFO	PlotMS::plot	Plotting 561 unflagged points.
+2019-09-26 11:29:56	INFO	PlotMS::plot	Plotting 561 unflagged points.
+2019-09-26 11:30:04	INFO	PlotMS::locate	U in [-26763.9 -22685.6], V in [17693.7 20967.9]:
+2019-09-26 11:30:04	INFO	PlotMS::locate+	Scan=0 Field=BEAM_0 [0] Time=2015/10/17/13:16:39.9999 BL=RS208LBA@LOFAR & RS406LBA@LOFAR [26&32] Spw=0 Chan=* Freq=*        Corr=* X=-25181.5 Y=19745.1 Observation=0
+2019-09-26 11:30:04	INFO	PlotMS::locate+	Found 1 points (1 unflagged) among 666 in 0s.
+2019-09-26 11:30:04	INFO	PlotMS::locate+	Note: only points in the original MS can be located, not the plotted conjugate points.
