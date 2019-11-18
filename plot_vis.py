@@ -240,6 +240,17 @@ def gauss_I(x,y,I0,x0,y0,sig_x,sig_y,theta):
 
 	return I
 
+def gauss_f(f,I0,f0,sig_f,C):
+	
+	# a = ((np.cos(theta)**2)/(2*sig_x**2)) + ((np.sin(theta)**2)/(2*sig_y**2))
+	# b = -((np.sin(2*theta))/(4*sig_x**2)) + ((np.sin(2*theta))/(4*sig_y**2))
+	# c = ((np.sin(theta)**2)/(2*sig_x**2)) + ((np.cos(theta)**2)/(2*sig_y**2))
+
+	G_f = I0 * np.exp(- ((f-f0)**2/(2*sig_f**2))) + C
+		#(-(a*((x-x0)**2) + 2*b*(x-x0)*(y-y0) + c*((y-y0)**2)))
+
+	return G_f
+
 """ 
 Following two functions "borrowed" from dft_acc.py
 Original by Menno Norden, James Anderson, Griffin Foster, et al.
@@ -358,7 +369,8 @@ class LOFAR_vis:
 		#auto_corrs = np.where(ant0==ant1)[0]
 		cross_corrs = np.where(ant0!=ant1)[0]
 
-		q_t = 1199 #time index before burst, first 10 minutes of data is queit sun ~ 1199 time samples
+		q_t = 1199//2 #time index before burst, first 10 minutes of data is queit sun ~ 1199 time samples
+		#There's actually a burst in the "quiet sun" part of the observation so just halve the time.
 		uvws = self.load_vis["uvws"][:,:q_t,:]/self.wlen
 		data = self.load_vis["data"][:,:q_t,:]
 		vis = self.load_vis["vis"][:,:q_t,:]
@@ -450,7 +462,11 @@ xy_mesh = np.meshgrid(x_arr,y_arr)
 
 ang_arr = np.arange(0, 600, 600/arr_size)
 
+bg_data = get_data(bf_file, vis0.obsstart, vis0.time )[0]
+bg_data = bg_data[:bg_data.shape[0]//2,:]
+bg_mean = np.mean(bg_data, axis=0) 
 bf_data, bf_freq, bf_tarr = get_data(bf_file, vis0.time, vis0.obsend )
+bf_data = bf_data/bg_mean
 bf_delt = bf_tarr[1] - bf_tarr[0]
 bf_delf = bf_freq[1] - bf_freq[0]
 
@@ -470,6 +486,7 @@ date_format = dates.DateFormatter("%H:%M:%S")
 
 # burst_max_t = burst_delt*q_t+np.argmax(bf_data_t) 
 
+
 def parallel_fit(i):
 	save = False
 	vis = LOFAR_vis(vis_file, i)
@@ -483,7 +500,29 @@ def parallel_fit(i):
 	fit_weight = np.sqrt(burst.weight**2 + q_sun.weight**2)
 	# if len(fit_weight[np.where(np.isinf(fit_weight))[0]]) != 0:
 	# 	fit_weight[np.where(np.isinf(fit_weight))[0]] = 0
+	striae = bf_data[int(np.round(burst_delt*(i-q_t))),:]
+	striae_bg = np.mean(striae[-500:])
+	bf_params = Parameters()
+	bf_params.add_many(('I0', striae[burst_f_mid_bf], True, 0),
+		('f0', bf_freq[burst_f_mid_bf], True, bf_freq[burst_f_mid_bf-8], bf_freq[burst_f_mid_bf+8]),
+		('sig_f', bf_delf*16),
+		('C', striae_bg, True, 0, striae_bg*1.1 )
+		)
 
+	bf_model = Model(gauss_f)
+	bf_range = striae[burst_f_mid_bf-16:burst_f_mid_bf+16]
+	freq_range = bf_freq[burst_f_mid_bf-16:burst_f_mid_bf+16]
+	bf_result = bf_model.fit(bf_range, bf_params, f=freq_range)
+	best_pars = [par.value for par in [*bf_result.params.values()]]
+	g_f = gauss_f(bf_freq[burst_f_mid_bf-100:burst_f_mid_bf+100], *best_pars)
+	plt.plot(bf_freq[burst_f_mid_bf-100:burst_f_mid_bf+100], striae[burst_f_mid_bf-100:burst_f_mid_bf+100])
+	plt.plot(bf_freq[burst_f_mid_bf-100:burst_f_mid_bf+100],g_f)
+	plt.title("Striae Intensity")
+	plt.ylabel("Intensity (above background)")
+	plt.xlabel("Frequency (MHz)")
+	if save:
+		plt.savefig("/mnt/murphp30_data/typeIII_int/gain_corrections/vis/stria_fit_t{1}.png".format(str(SB).zfill(3),str(vis.t-q_t).zfill(3)))
+		plt.close()
 	# fit_weight = np.log(fit_weight)
 	if ngauss == 2:
 		params.add_many(('I0',np.pi*np.max(abs(fit_vis)),True,0,abs(np.max(fit_vis))*10), 
@@ -698,7 +737,7 @@ def parallel_fit(i):
 # np.save("/mnt/murphp30_data/typeIII_int/mcmc/SB076/pars_list.npy", pars_list)
 # with Pool() as p_fit:
 # 	fits = p_fit.map(parallel_fit, range(q_t+16, q_t+31))
-fit_pos = parallel_fit(q_t+23)
+fit_pos = parallel_fit(q_t+24)
 t_run = time.time()-t0
 print("Time to run:", t_run)
 
