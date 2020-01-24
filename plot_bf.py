@@ -300,15 +300,15 @@ def freq_to_density(freq):
     n = (omega**2)*((m_e*eps0)/(e.si**2))
     return n.value * 1e6
 
-def Newkirk(freq):
+def Newkirk_f(freq):
     n = freq_to_density(freq)
-    n_0 = 4.2e4
+    n_0 = 4.2e4 #multiply by 2 if we're on a streamer maybe?
     R = 4.32*(1/np.log10(n/n_0))
 #def FWHM_to_l_scale(FWHM,sb):
     return R
 
 def l_scale(freq):
-    R = Newkirk(freq)
+    R = Newkirk_f(freq)
     return 1/(((4.32*R_sun)/((R*R_sun)**2))*np.log(10))
 
 def oom_source_size(del_freq, freq):

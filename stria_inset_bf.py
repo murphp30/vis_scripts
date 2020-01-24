@@ -20,29 +20,42 @@ import pdb
 from plot_fits import LOFAR_to_sun
 import argparse
 from plot_bf import get_data
+from plot_vis import LOFAR_vis
 
 # plt.rcParams.update({"font.size": 12})
 #plt.rcParams.update({"font.serif": ["Computer Modern Roman"]})
-
+parser = argparse.ArgumentParser()
+parser.add_argument('--vis_file', dest='vis_file', help='Input visibility file. \
+	Must be npz file of the same format as that created by vis_to_npy.py', default='SB076MS_data.npz')
+args = parser.parse_args()
+vis_file = args.vis_file
 
 f = "L401005_SAP000_B000_S0_P000_bf.h5"
 data, freq, t_arr = get_data(f, datetime(2015,10,17,13,21,0,0),datetime(2015,10,17,13,23,0,0))
 dt = t_arr[1] - t_arr[0]
-
+df = freq[1] - freq[0]
 
 
 day_start = datetime(2015,10,17,8,00,00)
 bf_dt_arr = day_start + timedelta(seconds=1)*t_arr
 bf_dt_arr = dates.date2num(bf_dt_arr)
-date_format = dates.DateFormatter("%H:%M:%S")
+date_format = dates.DateFormatter("%H:%M:%S") #dates.DateFormatter("%M:%S.%f")
 date_format0 = dates.DateFormatter("%M:%S")
 bg_data = np.mean(data[:1000,:], axis=0)
 data = data/bg_data
 
 # manually found very lazy, sorry
-stria_floc = 1992
-stria_freq = freq[stria_floc]
-stria_time = datetime(2015, 10, 17, 13, 21, 46, 174873)
+#vis_file = "SB076MS_data.npz"
+peak_dict = {"059":38, "117":50, "118":50, "119":50, "120":50, "125":49, "126":50, "127":50, "130":49, "133":47, "160":23}
+try:
+	peak = peak_dict[vis_file[2:5]]
+except KeyError:
+	peak = 28
+q_t = 1199
+stria_vis = LOFAR_vis(vis_file, q_t+peak)
+stria_floc = np.where(freq == stria_vis.freq*1e-6 +(df/2))[0][0]
+# stria_freq = freq[stria_floc]
+stria_time = stria_vis.time#datetime(2015, 10, 17, 13, 21, 46, 174873)
 stria_tloc = int((stria_time - datetime(2015,10,17,13,21,0,0)).total_seconds()/dt)
 
 

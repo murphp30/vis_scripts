@@ -1,5 +1,7 @@
 #!/usr/bin/env python
-
+import sys
+sys.path.insert(1,'/mnt/murphp30_data/typeIII_int/scripts')
+sys.path.insert(1,'/Users/murphp30/murphp30_data/typeIII_int/scripts')
 import numpy as np
 import pandas as pd
 from mpl_toolkits.mplot3d import Axes3D
@@ -8,8 +10,10 @@ from matplotlib import dates
 from matplotlib.patches import Circle
 from datetime import datetime, timedelta
 from scipy import interpolate
+from scipy.ndimage import interpolation as interp
+import scipy.integrate as integrate
 import scipy.optimize as opt
-from astropy.constants import c, m_e, R_sun,e, eps0
+from astropy.constants import c, m_e, R_sun, e, eps0, au
 from astropy.coordinates import SkyCoord, Angle
 import astropy.units as u
 from lmfit import Model, Parameters, Minimizer,minimize
@@ -18,11 +22,13 @@ import emcee
 from multiprocessing import Pool
 import time
 import warnings
-from sunpy.coordinates import sun
+import sunpy
+from sunpy.coordinates import sun, frames
+from sunpy.map import header_helper
 import argparse
-from plot_bf import get_data, get_obs_start
+from plot_bf import get_data, get_obs_start, oom_source_size, Newkirk_f
 import pdb
-
+from icrs_to_helio import icrs_to_helio
 parser = argparse.ArgumentParser()
 parser.add_argument('--vis_file', dest='vis_file', help='Input visibility file. \
 	Must be npz file of the same format as that created by vis_to_npy.py', default='SB076MS_data.npz')
@@ -51,22 +57,6 @@ def dirac_delta(u,v):
 	else:
 		return 0
 
-def Newkirk(r):
-    n_0 = 4.2e4
-    n = n_0*10**(4.32*R_sun.value/r) #in cm^-3
-    return n*1e6
-
-def dist_from_freq(freq):
-	kappa = np.sqrt((e.value**2/(m_e.value*eps0.value)))/(2*np.pi)
-	n_0 = 4.2e4 * 1e6 #cm^-3 to m^-3, keeping it SI
-	r = R_sun.value * (2.16)/(np.log10(freq)-np.log10(kappa*np.sqrt(n_0)))
-	return r
-
-def ang_scatter(r,freq,e_sq_over_h):
-	#e_sq_over_h = 5e-8 # m^-1 Steinberg et. al. 1971, Riddle 1974, Chrysaphi et. al. 2018
-	f_p =np.sqrt((e.value**2*Newkirk(r))/(eps0.value*m_e.value))/(2*np.pi)
-	return (np.sqrt(np.pi)/2) * ((f_p**4)/((freq**2-f_p**2)**2) )* e_sq_over_h
-
 def rad_to_m(rad):
 	R_rad = Angle(15*u.arcmin).rad
 	return rad*(R_sun.value/R_rad)
@@ -88,7 +78,7 @@ def gauss_2D(u,v,I0,x0,y0,sig_x,sig_y,theta,C):
 	#x0_p, y0_p = rotate_coords(x0,y0,theta)
 
 	V =  np.exp(-2*np.pi*1j*(u*x0+v*y0)) \
-	* ((I0/(2*np.pi)) * np.exp(-(((sig_x**2)*((2*np.pi*u_p)**2))/2) - (((sig_y**2)*((2*np.pi*v_p)**2))/2)) + C)
+	* (((I0/(2*np.pi)) * np.exp(-(((sig_x**2)*((2*np.pi*u_p)**2))/2) - (((sig_y**2)*((2*np.pi*v_p)**2))/2))) + C)
 	# np.exp(- ( ((sig_x**2)*((2*np.pi*u_p)**2))/2 + ((sig_x**2)*((2*np.pi*u_p)**2))/2 ))
 	return V
 
@@ -251,6 +241,124 @@ def gauss_f(f,I0,f0,sig_f,C):
 
 	return G_f
 
+"""
+Found these somewhere needed to plot Figure 6 from Chrysaphi et al. 2018
+r = np.arange(1.75*R_sun.value,2.75*R_sun.value,1e-3*R_sun.value)
+tau32_0 = []                                                                                                                                        
+tau32_1 = []                                                                                                                                        
+tau40_0 = []                                                                                                                                        
+tau40_1 = []                                                                                                                                        
+
+# 
+4.5e-8 < e**2/h < 7e-8 
+for i in range(len(r)):  
+    tau32_0.append(integrate.quad(ang_scatter, r[i], 1.5e11,args=(32e6,4.5e-8))[0]) 
+    tau32_1.append(integrate.quad(ang_scatter, r[i], 1.5e11,args=(32e6,7e-8))[0])
+    tau40_0.append(integrate.quad(ang_scatter, r[i], 1.5e11,args=(40e6,4.5e-8))[0]) 
+    tau40_1.append(integrate.quad(ang_scatter, r[i], 1.5e11,args=(40e6,7e-8))[0])
+
+plt.fill_between(r/R_sun.value, tau0, tau1, color='grey')                                                                                       
+
+
+plt.yscale("log")                                                                                                                               
+
+plt.ylabel("Optical Depth w.r.t. Scattering")                                                                                                   
+
+
+plt.xlabel("Heliocentric Distance (R_sun)")                                                                                                     
+
+
+plt.axhline(y=1, ls='--', color='k')                                                                                                            
+                                                                                                           
+
+plt.axvline(x=R.value/R_sun.value, ls='-', color='k')   
+"""
+
+def Newkirk(r): 
+	n_0 = 4.2e4 
+	n = n_0*10**(4.32*R_sun.value/r) #in cm^-3 
+	return n*1e6 #assume on streamer axis Riddle 1974, Newkirk 1961
+
+def Saito(r):
+	n = 1.36e6 * (R_sun.value/r)**2.14 + 1.86e8 * (R_sun.value/r)**6.13
+	return n
+
+def Leblanc(r):
+	n = 3.3e5 * (R_sun.value/r)**2 + 4.1e6 * (R_sun.value/r)**4 + 8e7 * (R_sun.value/r)**6
+	return n
+
+def Allen_Baumbach(r):
+	n = 1e8*(1.55*(R_sun.value/r)**6 + 2.99*(R_sun.value/r)**16) + 4e5*(R_sun.value/r)**2
+	return n
+
+
+def density_3_pl(r):
+	#Three power law density used by Kontar et al. 2019
+	n = (4.8e9*((R_sun.value/r)**14)) +( 3e8*((R_sun.value/r)**6) )+ (1.4e6*((R_sun.value/r)**2.3))
+	return n*1e6
+def plasma_freq(r):
+	return np.sqrt((e.value**2*density_3_pl(r))/(eps0.value*m_e.value))/(2*np.pi)
+
+def ang_scatter(r,freq,e_sq_over_h): 
+	#e_sq_over_h = 5e-8 # m^-1 Steinberg et al. 1971, Riddle 1974, Chrysaphi et al. 2018 
+	f_p = plasma_freq(r)
+	return (np.sqrt(np.pi)/2) * ((f_p**4)/((freq**2-f_p**2)**2) )* e_sq_over_h 
+
+def angle_integral(r, freq):
+	f_p = plasma_freq(r)
+	return (np.sqrt(np.pi)/2)*((f_p**4)/((freq**2-f_p**2)**2)) * (r**3/2)
+
+def freq_integral(r, freq, scale):
+	f_p = plasma_freq(r)
+	#Krupar 2018 10.3847/1538-4357/aab60f
+	if r < 100*R_sun.value:
+		li = (684/np.sqrt(density_3_pl(r)*1e-6))*1e3#(r/R_sun.value)*1e3
+	else:
+		li = 100*1e3 
+	#Wohlmuth 2001 https://link-springer-com.elib.tcd.ie/content/pdf/10.1023/A:1011845221808.pdf
+	lo = 0.25*R_sun.value * (r/R_sun.value)**0.82
+	if scale == "krup":
+		h = li**(1/3) * lo**(2/3)
+	elif scale == "stein":
+		h = 5e-5 * r
+	else:
+		print("Invalid scale: {}".format(scale))
+	return (np.sqrt(np.pi)/(2*h))*((f_p**4)/((freq**2-f_p**2)**2))
+
+def dist_from_freq(freq): 
+	kappa = np.sqrt((e.value**2/(m_e.value*eps0.value)))/(2*np.pi) 
+	n_0 = 4.2e4 * 1e6 #cm^-3 to m^-3, keeping it SI 
+	r = R_sun.value * (2.16)/(np.log10(freq)-np.log10(kappa*np.sqrt(n_0))) 
+	return r 
+
+def stria_fit(i, save=False):
+	striae = bf_data[int(np.round(burst_delt*(i-q_t))),:]
+	striae_bg = np.mean(striae[-500:])
+	bf_params = Parameters()
+	bf_params.add_many(('I0', striae[burst_f_mid_bf], True, 0),
+		('f0', bf_freq[burst_f_mid_bf], True, bf_freq[burst_f_mid_bf-8], bf_freq[burst_f_mid_bf+8]),
+		('sig_f', (bf_delf*4)/(2*np.sqrt(2*np.log(2))), True, 0, (bf_delf*32)/(2*np.sqrt(2*np.log(2)))),
+		('C', striae_bg, True, 0, striae_bg*1.1 )
+		)
+
+	bf_model = Model(gauss_f)
+	bf_range = striae[burst_f_mid_bf-16:burst_f_mid_bf+16]
+	freq_range = bf_freq[burst_f_mid_bf-16:burst_f_mid_bf+16]
+	bf_result = bf_model.fit(bf_range, bf_params, f=freq_range)
+	best_pars = [par.value for par in [*bf_result.params.values()]]
+	g_f = gauss_f(bf_freq[burst_f_mid_bf-100:burst_f_mid_bf+100], *best_pars)
+	
+	plt.figure()
+	plt.plot(bf_freq[burst_f_mid_bf-100:burst_f_mid_bf+100], striae[burst_f_mid_bf-100:burst_f_mid_bf+100])
+	plt.plot(bf_freq[burst_f_mid_bf-100:burst_f_mid_bf+100],g_f)
+	plt.title("Striae Intensity")
+	plt.ylabel("Intensity (above background)")
+	plt.xlabel("Frequency (MHz)")
+	if save:
+		plt.savefig("/mnt/murphp30_data/typeIII_int/gain_corrections/vis/stria_fit_t{1}.png".format(str(SB).zfill(3),str(i-q_t).zfill(3)))
+		plt.close()
+	return bf_result
+
 """ 
 Following two functions "borrowed" from dft_acc.py
 Original by Menno Norden, James Anderson, Griffin Foster, et al.
@@ -283,6 +391,51 @@ def dftImage(d,u,v,px,res,mask=False):
     print(time.time()-start_time)
     #pdb.set_trace()
     return im
+
+# def par_dft2(k,l):
+#     return dft2(1, res*(k-mid_k), res*(l-mid_l), burst.u, burst.v)
+# with Pool() as p:  
+#     start_time=time.time()
+#     im = p.starmap(par_dft2, product(reversed(range(px[0])),range(px[1])))
+#     p.close()
+#     p.join()
+#     print(time.time()-start_time)
+#     im = np.array(im).reshape(px[0], px[1])
+#     plt.imshow(abs(im), origin='lower', aspect='equal')
+#     plt.show()
+
+def make_map(vis, data,dpix):
+	#make sunpy map from LOFAR_vis meta data 
+	#and reconstructed image data
+	icrs_dict = sunpy.util.MetaDict()
+	icrs_dict['crpix1'] = (data.shape[0] -1) /2
+	icrs_dict['crpix2'] = (data.shape[1] -1) /2
+	icrs_dict['cdelt1'] = Angle(dpix*u.rad).deg
+	icrs_dict['cdelt2'] = Angle(dpix*u.rad).deg
+	icrs_dict['cunit1'] = 'deg'
+	icrs_dict['cunit2'] = 'deg'
+	icrs_dict['crval1'] = vis.phs_dir.ra.deg
+	icrs_dict['crval2'] = vis.phs_dir.dec.deg
+	icrs_dict['crval3'] = vis.freq
+	icrs_dict['ctype1'] = 'RA---SIN'
+	icrs_dict['ctype2'] = 'DEC--SIN'
+	icrs_dict['date-obs'] = vis.time.isoformat() #strftime("%Y-%m-%dT%H:%M:%S.%f")
+
+	icrs_map = sunpy.map.Map(data, icrs_dict)
+	# phs_dir_helio = vis.phs_dir.transform_to(frame='helioprojective', merge_attributes=True)
+	# # shift_x = 0#vis.solar_ra_offset.to(u.rad)/Angle(dpix*u.rad)
+	# # shift_y = 0#vis.solar_dec_offset.to(u.rad)/Angle(dpix*u.rad)
+	# # data = interp.shift(data, (shift_x, -shift_y))
+	# data = interp.rotate(data, vis.solar_angle.deg)
+	# #phs_dir_pix =  data.shape
+	# # icrs_head = header_helper.make_fitswcs_header(data, vis.phs_dir)
+	# # icrs_smap = sunpy.map.Map(data, icrs_head)
+	# helio_scale = Angle(dpix*u.rad).to(u.arcsec)/(1*u.pix)
+	# helio_head = header_helper.make_fitswcs_header(data, phs_dir_helio, scale=u.Quantity([helio_scale,helio_scale]))
+
+
+	return icrs_map #sunpy.map.Map(data,helio_head)
+
 class LOFAR_vis:
 	"""
 	A class that contains a LOFAR measurment set 
@@ -297,8 +450,9 @@ class LOFAR_vis:
 		
 		self.load_vis = np.load(self.fname)
 		self.freq = float(self.load_vis["freq"])
-		phs_dir = self.load_vis["phs_dir"]
-		self.phs_dir =  SkyCoord(phs_dir[0], phs_dir[1], unit="rad")
+
+		phs_dir = Angle(self.load_vis["phs_dir"]*u.rad)
+		
 
 		self.delt = float(self.load_vis["dt"])
 		self.delf = float(self.load_vis["df"])
@@ -308,11 +462,18 @@ class LOFAR_vis:
 
 		self.time = epoch_start + timedelta(seconds=self.load_vis["times"][self.t][0])
 
-		self.sun_dir =  sun.sky_position(self.time,False)
-		self.solar_ra_offset = (self.phs_dir.ra-self.sun_dir[0])
-		self.solar_dec_offset = (self.phs_dir.dec-self.sun_dir[1])
-		self.solar_rad = sun.angular_radius(self.time)
 
+		self.dsun = sun.earth_distance(self.time)
+		self.phs_dir =  SkyCoord(phs_dir[0], phs_dir[1],
+								distance=self.dsun, obstime=self.time, 
+								frame="icrs", equinox="J2000")
+		sun_dir =  sun.sky_position(self.time,False)
+		self.sun_dir = SkyCoord(*sun_dir)
+		self.solar_ra_offset = (self.phs_dir.ra-self.sun_dir.ra)
+		self.solar_dec_offset = (self.phs_dir.dec-self.sun_dir.dec)
+		self.solar_rad = sun.angular_radius(self.time)
+		self.solar_angle = sunpy.coordinates.sun.P(self.time)
+	
 	def vis_df(self):
 		ant0 = self.load_vis["ant0"]
 		ant1 = self.load_vis["ant1"]
@@ -324,6 +485,56 @@ class LOFAR_vis:
 		times = epoch_start + timedelta(seconds=1)*times
 		data = self.load_vis["data"]
 		vis = self.load_vis["vis"]
+		weights = self.load_vis["weights"]
+		flag = self.load_vis["flag"]
+		data = data[0,:] + data[3,:]
+		V = vis[0,:] + vis[3,:]
+		flag = flag[0,:] + flag[3,:]
+		vis_err = np.sqrt(1/weights*abs(vis))
+		vis_err = np.sqrt(abs(vis_err[0,:])**2 + abs(vis_err[3,:])**2)
+		weights = weights[0,:] + weights[3,:]#(weights[0,:]*abs(vis)[0,:] + weights[3,:]*abs(vis)[3,:])		
+		#weights[flag] = 0
+		flag = np.invert(flag)
+		ntimes =flag.shape[0]
+		uvws=uvws[:,flag].reshape(3,ntimes,-1)
+		times = times[flag].reshape(ntimes,-1)
+		data = data[flag].reshape(ntimes,-1)
+		V = V[flag].reshape(ntimes,-1)
+		vis_err = vis_err[flag].reshape(ntimes,-1)
+		weights = weights[flag].reshape(ntimes,-1)
+
+		ant0 = ant0[flag[0]] #assume flag only in baseline not time
+		ant1 = ant1[flag[0]]
+		cross_corrs = np.where(ant0!=ant1)[0]
+		d_cross = {"u":uvws[0,self.t,:][cross_corrs],"v":uvws[1,self.t,:][cross_corrs],"w":uvws[2,self.t,:][cross_corrs], 
+		"times":times[self.t,cross_corrs], "raw":data[self.t, cross_corrs], "vis":V[self.t,cross_corrs], "vis_err":vis_err[self.t,cross_corrs],
+		"weight":weights[self.t,cross_corrs]}
+		df_cross = pd.DataFrame(data=d_cross)
+
+		uv_dist = np.sqrt(df_cross.u**2 + df_cross.v**2)
+		ang_scales = Angle((1/uv_dist)*u.rad)
+
+		bg = np.where(ang_scales.arcmin < 2 )[0]
+		bg_vis = df_cross.vis[bg]
+		bg_mean = np.mean(bg_vis)		
+
+		df_cross = df_cross.assign(uv_dist = uv_dist)
+		df_cross = df_cross.assign(ang_scales = ang_scales.arcmin)
+		df_cross = df_cross.assign(bg_vis = (df_cross.vis - bg_mean))
+
+		return df_cross
+	
+	def model_df(self):
+		ant0 = self.load_vis["ant0"]
+		ant1 = self.load_vis["ant1"]
+		#auto_corrs = np.where(ant0==ant1)[0]
+		
+
+		uvws = self.load_vis["uvws"]/self.wlen
+		times = self.load_vis["times"]
+		times = epoch_start + timedelta(seconds=1)*times
+		data = self.load_vis["data"]
+		vis = self.load_vis["mdl"]
 		weights = self.load_vis["weights"]
 		flag = self.load_vis["flag"]
 		data = data[0,:] + data[3,:]
@@ -455,9 +666,10 @@ q_sun = vis0.queit_sun_df()
 arr_size = 5000
 u_arr = np.arange(q_sun.u.min(),q_sun.u.max(),(q_sun.u.max()-q_sun.u.min())/arr_size )
 v_arr = np.arange(q_sun.v.min(),q_sun.v.max(),(q_sun.v.max()-q_sun.v.min())/arr_size )
-uv_mesh = np.meshgrid(u_arr,v_arr) 
-x_arr = np.arange(-2*0.0142739,2*0.0142739,2*1.39e-5)
-y_arr = np.arange(-2*0.0142739,2*0.0142739,2*1.39e-5)
+uv_mesh = np.meshgrid(u_arr,v_arr)
+dpix =  1.39e-5
+x_arr = np.arange(-0.0142739,0.0142739,dpix)
+y_arr = np.arange(-0.0142739,0.0142739,dpix)
 xy_mesh = np.meshgrid(x_arr,y_arr) 
 
 ang_arr = np.arange(0, 600, 600/arr_size)
@@ -489,43 +701,21 @@ date_format = dates.DateFormatter("%H:%M:%S")
 
 def parallel_fit(i):
 	save = False
+	model = False
 	vis = LOFAR_vis(vis_file, i)
 	burst = vis.vis_df()
-
 	ngauss = 1
 
 	params = Parameters()
-	fit_vis = burst.vis - q_sun.vis
-	#fit_vis = np.log(fit_vis)
-	fit_weight = np.sqrt(burst.weight**2 + q_sun.weight**2)
-	# if len(fit_weight[np.where(np.isinf(fit_weight))[0]]) != 0:
-	# 	fit_weight[np.where(np.isinf(fit_weight))[0]] = 0
-	striae = bf_data[int(np.round(burst_delt*(i-q_t))),:]
-	striae_bg = np.mean(striae[-500:])
-	bf_params = Parameters()
-	bf_params.add_many(('I0', striae[burst_f_mid_bf], True, 0),
-		('f0', bf_freq[burst_f_mid_bf], True, bf_freq[burst_f_mid_bf-8], bf_freq[burst_f_mid_bf+8]),
-		('sig_f', bf_delf*16),
-		('C', striae_bg, True, 0, striae_bg*1.1 )
-		)
+	if model:
+		fit_vis = vis.model_df().vis
+		fit_weight = None
+	else:
+		fit_vis = burst.vis - q_sun.vis
+		fit_weight = np.sqrt(burst.weight**2 + q_sun.weight**2)
 
-	bf_model = Model(gauss_f)
-	bf_range = striae[burst_f_mid_bf-16:burst_f_mid_bf+16]
-	freq_range = bf_freq[burst_f_mid_bf-16:burst_f_mid_bf+16]
-	bf_result = bf_model.fit(bf_range, bf_params, f=freq_range)
-	best_pars = [par.value for par in [*bf_result.params.values()]]
-	g_f = gauss_f(bf_freq[burst_f_mid_bf-100:burst_f_mid_bf+100], *best_pars)
-	plt.plot(bf_freq[burst_f_mid_bf-100:burst_f_mid_bf+100], striae[burst_f_mid_bf-100:burst_f_mid_bf+100])
-	plt.plot(bf_freq[burst_f_mid_bf-100:burst_f_mid_bf+100],g_f)
-	plt.title("Striae Intensity")
-	plt.ylabel("Intensity (above background)")
-	plt.xlabel("Frequency (MHz)")
-	if save:
-		plt.savefig("/mnt/murphp30_data/typeIII_int/gain_corrections/vis/stria_fit_t{1}.png".format(str(SB).zfill(3),str(vis.t-q_t).zfill(3)))
-		plt.close()
-	# fit_weight = np.log(fit_weight)
 	if ngauss == 2:
-		params.add_many(('I0',np.pi*np.max(abs(fit_vis)),True,0,abs(np.max(fit_vis))*10), 
+		params.add_many(('I0',np.pi*np.max(abs(fit_vis)),True,0,abs(np.max(fit_vis))*100), 
 			('x0',-0.7*sun_diam_rad,False,-1.5*sun_diam_rad,-0.25*sun_diam_rad),
 			('y0',-0.5*sun_diam_rad,False,-1.5*sun_diam_rad,-0.25*sun_diam_rad), 
 			('sig_x0',sig_x_guess,True,sig_stria,1.5*sig_sun),
@@ -541,17 +731,26 @@ def parallel_fit(i):
 			#('C1',np.min(abs(fit_vis)),True, 0))
 		# fit = minimize(residual, params, method="leastsq", args=(burst.u, burst.v, fit_vis,"gauss", fit_weight , ngauss, False))
 	elif ngauss == 1:
-		params.add_many(('I0',2*np.pi*np.max(abs(fit_vis)),True,0,abs(np.max(fit_vis))*10), 
+		params.add_many(('I0',2*np.pi*abs(np.sum(fit_vis)),True,0), 
 			('x0',-0.7*sun_diam_rad,False,-1.5*sun_diam_rad,1.5*sun_diam_rad),
 			('y0',0.5*sun_diam_rad,False,-1.5*sun_diam_rad,1.5*sun_diam_rad), 
 			('sig_x',sig_x_guess,True,sig_stria,1.5*sig_sun),
 			('sig_y',sig_y_guess,True,sig_stria,1.5*sig_sun), 
-			('theta',np.pi/3,True,0, np.pi),
+			('theta',np.pi/4,True,0, np.pi),
 			('C',np.mean(abs(fit_vis)),True, np.min(abs(fit_vis))))
-
+		""" works for SB076
+		params.add_many(('I0',2*np.pi*abs(np.sum(fit_vis)),True,0), 
+			('x0',-0.7*sun_diam_rad,False,-1.5*sun_diam_rad,1.5*sun_diam_rad),
+			('y0',0.5*sun_diam_rad,False,-1.5*sun_diam_rad,1.5*sun_diam_rad), 
+			('sig_x',sig_x_guess,True,sig_stria,1.5*sig_sun),
+			('sig_y',sig_y_guess,True,sig_stria,1.5*sig_sun), 
+			('theta',np.pi/4,True,0, np.pi),
+			('C',np.mean(abs(fit_vis)),True, np.min(abs(fit_vis))))
+		"""
 
 	fit = minimize(residual, params, method="leastsq", args=(burst.u, burst.v, fit_vis,"gauss", fit_weight , ngauss, True))
 	print("Fitting", i-q_t)
+	size_fit_errs = {par+"_err":fit.params[par].stderr for par in fit.params}
 
 	if ngauss == 2:
 		fit.params["I0"].vary = False
@@ -616,8 +815,8 @@ def parallel_fit(i):
 		# g_fit = gauss_2D(burst.u, burst.v, val_dict['I0'], val_dict['x0'], val_dict['y0'], 
 					# val_dict['sig_x'], val_dict['sig_y'], val_dict['theta'], val_dict['C'])
 		u_rot, v_rot = rotate_coords(u_arr, v_arr, val_dict['theta'])
-		g_fitx = (val_dict['I0']/(2*np.pi)) * np.exp(-((val_dict['sig_x']**2 * (2*np.pi*u_rot)**2))/2) + val_dict['C']
-		g_fity = (val_dict['I0']/(2*np.pi)) * np.exp(-((val_dict['sig_y']**2 * (2*np.pi*v_rot)**2))/2) + val_dict['C']
+		g_fitx = ((val_dict['I0']/(2*np.pi)) * np.exp(-((val_dict['sig_x']**2 * (2*np.pi*u_rot)**2))/2)) + val_dict['C']
+		g_fity = ((val_dict['I0']/(2*np.pi)) * np.exp(-((val_dict['sig_y']**2 * (2*np.pi*v_rot)**2))/2)) + val_dict['C']
 		ang_u, ang_v = Angle((1/abs(u_rot))*u.rad).arcmin, Angle((1/abs(v_rot))*u.rad).arcmin
 		cont_fit = gauss_2D(uv_mesh[0], uv_mesh[1], val_dict['I0'], val_dict['x0'], val_dict['y0'],
 			val_dict['sig_x'], val_dict['sig_y'], val_dict['theta'], val_dict['C'])
@@ -643,7 +842,10 @@ def parallel_fit(i):
 
 	axs[0].set_xscale('log')
 	axs[0].set_xlim([axs[0].get_xlim()[0], 1e3])
-	axs[0].set_ylim([axs[0].get_ylim()[0], 0.9e7])
+	if vis_file[2:5] == "076":
+		if not model:
+			axs[0].set_xlim([axs[0].get_xlim()[0], 1e3])
+			axs[0].set_ylim([axs[0].get_ylim()[0], 0.9e7])
 
 	axs[1].plot(bf_dt_arr,bf_data_t)
 	axs[1].xaxis_date() 
@@ -651,7 +853,7 @@ def parallel_fit(i):
 	axs[1].set_xlabel("Time")
 	axs[1].set_ylabel("Intensity (above background)")
 	axs[1].set_title("Intensity vs Time at {}MHz".format(np.round(vis.freq/1e6,2)))
-	axs[1].vlines(bf_dt_arr[int(np.round(burst_delt*(i-q_t)))], ymin=0, ymax=bf_data_t[int(np.round(burst_delt*(i-q_t)))],color='r')
+	axs[1].vlines(bf_dt_arr[int(np.round(burst_delt*(i-q_t)))], ymin=0, ymax=bf_data_t[int(np.round(burst_delt*(i-q_t)))],color='grey')
 	plt.tight_layout()
 	if save:
 		plt.savefig("/mnt/murphp30_data/typeIII_int/gain_corrections/vis/vis_ang_scale_t{1}.png".format(str(SB).zfill(3),str(vis.t-q_t).zfill(3)))
@@ -690,10 +892,14 @@ def parallel_fit(i):
 	plt.scatter(burst.u, burst.v, c=np.log(abs(fit_vis)))
 	# plt.imshow(np.log(abs(cont_fit)), aspect='auto', origin='lower', extent=[u_arr[0], u_arr[-1], v_arr[0], v_arr[-1]],
 	#  vmin=np.min(np.log(abs(fit_vis))), vmax=np.max(np.log(abs(fit_vis))))
-	plt.contour(uv_mesh[0], uv_mesh[1], np.log(abs(cont_fit)), 
-		[np.log(0.1) + np.max(np.log(abs(cont_fit))),np.log(0.5) + np.max(np.log(abs(cont_fit))),
-		np.log(0.9) + np.max(np.log(abs(cont_fit))),np.log(0.95) + np.max(np.log(abs(cont_fit)))],
-		colors='r')
+	# plt.contour(uv_mesh[0], uv_mesh[1], np.log(abs(cont_fit)), 
+	# 	[np.log(0.1) + np.max(np.log(abs(cont_fit))),np.log(0.5) + np.max(np.log(abs(cont_fit))),
+	# 	np.log(0.9) + np.max(np.log(abs(cont_fit))),np.log(0.95) + np.max(np.log(abs(cont_fit)))],
+	# 	colors='r')
+	plt.contour(uv_mesh[0], uv_mesh[1], (abs(cont_fit)), 
+	[0.1*np.max((abs(cont_fit))),0.5*np.max((abs(cont_fit))),
+	0.9 * np.max((abs(cont_fit))),0.95*np.max((abs(cont_fit)))],
+	colors='r')
 	# plt.contour(uv_mesh[0], uv_mesh[1], abs(np.log(cont_fit)), 
 	# 	[0.9*np.max(abs(np.log(cont_fit)))],
 	# 	colors='b')
@@ -712,34 +918,116 @@ def parallel_fit(i):
 	# plt.xlim(-1000,1000)
 	# plt.ylim(-1000,1000)
 	# # plt.colorbar()
-	fig, ax = plt.subplots()
-	im = ax.imshow(np.flip(I_fit,0), aspect='equal', origin='lower', vmin=0, vmax=3.5e12,
-		extent=[Angle(x_arr[0],unit='rad').arcsec, Angle(x_arr[-1],unit='rad').arcsec,
-		Angle(y_arr[0],unit='rad').arcsec, Angle(y_arr[-1],unit='rad').arcsec])
-	s = Circle((vis.solar_ra_offset.arcsec,vis.solar_dec_offset.arcsec),vis.solar_rad.arcsec, color='r', fill=False)
-	ax.add_patch(s)
-	plt.xlabel("X (arcsecond)")
-	plt.ylabel("Y (arcsecond)")
-	fig.colorbar(im)
-	plt.title("Recreated Image {}".format(vis.time.isoformat()))
-	plt.tight_layout()
+	# fig, ax = plt.subplots()
+	# im = ax.imshow(np.flip(I_fit,0), aspect='equal', origin='lower', vmin=0, vmax=3.5e12,
+	# 	extent=[Angle(x_arr[0],unit='rad').arcsec, Angle(x_arr[-1],unit='rad').arcsec,
+	# 	Angle(y_arr[0],unit='rad').arcsec, Angle(y_arr[-1],unit='rad').arcsec])
+	# s = Circle((vis.solar_ra_offset.arcsec,vis.solar_dec_offset.arcsec),vis.solar_rad.arcsec, color='r', fill=False)
+	# ax.add_patch(s)
+	# plt.xlabel("X (arcsecond)")
+	# plt.ylabel("Y (arcsecond)")
+	# fig.colorbar(im)
+	# plt.title("Recreated Image {}".format(vis.time.isoformat()))
+	# plt.tight_layout()
+	plt.figure()
+	icrs_map = make_map(vis, np.flip(I_fit, 0),dpix)
+	helio_map = icrs_to_helio(icrs_map)
+	helio_map.plot(cmap="viridis", title="Recreated Image {}".format(helio_map.date.datetime.isoformat()))
+	helio_map.draw_limb(color='r')
 	if save:
 		plt.savefig("/mnt/murphp30_data/typeIII_int/gain_corrections/vis/im_recreate_t{1}.png".format(str(SB).zfill(3),str(vis.t-q_t).zfill(3)))
 		# plt.savefig("/mnt/murphp30_data/typeIII_int/gain_corrections/vis/im_recreate_raw.png")
 		plt.close()
-	return fit
+	return fit, size_fit_errs, vis.freq
 	#fig, ax = plt.subplots()
 	#ax.imshow(abs(gm_fit), aspect='equal', origin='lower', extent=[u_arr[0], u_arr[-1], v_arr[0], v_arr[-1]])
 	# s = Circle((0,0),1/vis.solar_rad.rad, color='r', fill=False)
 	# ax.add_patch(s)
 
-	
-# np.save("/mnt/murphp30_data/typeIII_int/mcmc/SB076/pars_list.npy", pars_list)
-# with Pool() as p_fit:
-# 	fits = p_fit.map(parallel_fit, range(q_t+16, q_t+31))
-fit_pos = parallel_fit(q_t+24)
-t_run = time.time()-t0
-print("Time to run:", t_run)
+if __name__ == "__main__":	
+	# np.save("/mnt/murphp30_data/typeIII_int/mcmc/SB076/pars_list.npy", pars_list)
+	# with Pool() as p_fit:
+	# 	fits = p_fit.map(parallel_fit, range(q_t+16, q_t+31))
 
-plt.show()
+	"""
+	The following is a very lame method of finding the correct time index
+	It should really be some f = at^-b relation or something, Peijin probably has
+	somehting in his paper but until then...
+	Reid & Kontar 2018 t = 1.5f^-0.77 per 30MHz
+	"""
+	peak_dict = {"059":38, "117":50, "118":50, "119":50, "120":50, "125":49, "126":50, "127":50, "130":49, "133":47, "160":23}
+	e_krups = []
+	e_steins = []
+	freqs = []
+	# for sb in peak_dict:
+	# 	vis_file = vis_file.replace(vis_file[2:5],sb)
+	peak = peak_dict[vis_file[2:5]]
+	# if vis_file[2:5] == "015":
+	# 	peak = 40
+	# elif vis_file[2:5] == "040":
+	# 	peak = 36
+	# elif vis_file[2:5] == "059":
+	# 	peak = 38
+	# elif vis_file[2:5] == "117":
+	# 	peak = 48
+	# elif vis_file[2:5] == "155":
+	# 	peak = 15
+	# elif vis_file[2:5] == "160":
+	# 	peak = 20
+	# else:
+	# 	peak = 28 
+	fit_pos,fit_err,freq = parallel_fit(q_t+peak)
+	fit_err["x0_err"] = fit_pos.params["x0"].stderr
+	fit_err["y0_err"] = fit_pos.params["y0"].stderr
+	fit_stria = stria_fit(q_t+peak)
+	# plt.close("all")
+	t_run = time.time()-t0
+
+	del_f = 2*np.sqrt(2*np.log(2))*fit_stria.params['sig_f'].value
+	freq0 = fit_stria.params['f0'].value
+	oom = oom_source_size(del_f, freq0)
+	print("Time to run:", t_run)
+	print("FWHM x: {} arcmin".format(FWHM(fit_pos.params['sig_x'])))
+	print("FWHM y: {} arcmin".format(FWHM(fit_pos.params['sig_y'])))
+	print("Order of Magnitude size: {} arcmin".format((oom.value/R_sun.value)*vis0.solar_rad.arcmin) )
+
+	# FWHM_x = FWHM(fit_pos.params['sig_x'])#*u.arcmin)
+	# FWHM_y = FWHM(fit_pos.params['sig_y'])#*u.arcmin)
+	# FWHM_x, FWHM_y = (R_sun.value/15)*FWHM_x, (R_sun.value/15)*FWHM_y
+	# R_s =  dist_from_freq(vis0.freq) #Newkirk_f(vis0.freq*1e-6)*R_sun.value
+
+	# area_0 = np.pi*((oom.value/R_sun.value)*Angle(15*u.arcmin).rad)**2
+	# area_1 = np.pi*(FWHM_x*FWHM_y)
+
+	x_m = (720/np.pi) * R_sun.value * fit_pos.params['x0'].value
+	y_m = (720/np.pi) * R_sun.value * fit_pos.params['y0'].value
+	R_obs = np.sqrt(x_m**2 + y_m**2)
+	R = R_obs/np.sin(Angle(70*u.deg)) * u.m #from rough estimate of 3d pfss
+
+	# r_arr = np.arange(R.value,au.value, au.value*1e-6)
+	# theta = np.arctan(0.5*FWHM_x/(R_obs-R_s))
+	# # r = np.arange(Newkirk_f(vis0.freq), R_m, 1e-3)
+	# tau = integrate.quad(freq_integral,R_s, R_obs,args=(vis0.freq))[0]
+	# for i in range(len(r)-1):
+	# 	tau.append(integrate.quad(freq_integral, r[i], r[i+1],args=(vis0.freq))[0])
+	freq_int_stein = integrate.quad(freq_integral, R.value, au.value ,args=(vis0.freq,"stein"))[0]
+	freq_int_krup = integrate.quad(freq_integral, R.value, au.value ,args=(vis0.freq,"krup"))[0]  
+	#e_sq_over_h = 1/freq_int #(2/np.sqrt(np.pi))*(theta/tau)#((area_1-area_0)/np.sum(tau))
+	# h = 5e-5*(R.value)
+	# li = (R/R_sun)*1e3*u.m  
+	# lo = 0.25*R_sun * (R/R_sun)**0.82 
+	# l = li**(1/3) * lo**(2/3)
+	e_sq_stein = 1/freq_int_stein# * h #e_sq_over_h * h
+	e_sq_krup = 1/freq_int_krup# * l.value
+	e_stein = np.sqrt(e_sq_stein)
+	e_krup = np.sqrt(e_sq_krup)
+	# e_krups.append(e_krup)
+	# e_steins.append(e_stein)
+	# freqs.append(freq*1e-6)
+		# val_dict = fit_pos.params.valuesdict()
+	# I_fit = gauss_I(xy_mesh[0], xy_mesh[1], val_dict['I0'], val_dict['x0'], val_dict['y0'], 
+	# 		val_dict['sig_x'], val_dict['sig_y'], val_dict['theta'])
+
+
+	plt.show()
 

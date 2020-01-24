@@ -45,10 +45,13 @@ def get_MS_data(SB,t_start, t_end, av=False):
 	data = tb.getcol("DATA",i,no_intervals)[:,0,:].reshape(4,-1, nbaselines)
 	vis = tb.getcol("CORRECTED_DATA",i,no_intervals)[:,0,:].reshape(4,-1, nbaselines) #("CORR_NO_BEAM",i,no_intervals)
 	weights = tb.getcol("WEIGHT_SPECTRUM",i,no_intervals)[:,0,:].reshape(4,-1, nbaselines)
-	#mdl = tb.getcol("MODEL_DATA",i,no_intervals).reshape(4,-1, nbaselines)
+	try:
+		mdl = tb.getcol("MODEL_DATA",i,no_intervals).reshape(4,-1, nbaselines)
+	except RuntimeError:
+		mdl = np.zeros(data.shape)
 	ant0 = tb.getcol("ANTENNA1",i,no_intervals).reshape(-1, nbaselines)[0]
 	ant1 = tb.getcol("ANTENNA2",i,no_intervals).reshape(-1, nbaselines)[0]
-        flag = tb.getcol("FLAG",i,no_intervals)[:,0,:].reshape(4,-1, nbaselines)
+	flag = tb.getcol("FLAG",i,no_intervals)[:,0,:].reshape(4,-1, nbaselines)
 	tb.close()
 	tb.open(SB+"SPECTRAL_WINDOW")
 	freq = tb.getcol("CHAN_FREQ")[0,0]
@@ -110,17 +113,25 @@ def get_MS_data(SB,t_start, t_end, av=False):
 
 	#tb.close()
 
-	return outfile, freq, phs_dir, times, dt,sb_width,uvws,ant0,ant1,flag,data,vis,weights#,mdl,eig_max
-
-
-for i in range(76,77):
+	return outfile, freq, phs_dir, times, dt,sb_width,uvws,ant0,ant1,flag,data,vis,weights,mdl#,eig_max
+def get_freq(SB):
+	tb.open("L401003_SB{}_uv.dppp.MS/".format(str(int(SB)).zfill(3))+"SPECTRAL_WINDOW")
+	freq = tb.getcol("CHAN_FREQ")[0,0]
+	tb.close()
+	return freq*1e-6
+# sb_arr = np.arange(244)
+# freqs = [get_freq(sb) for sb in sb_arr]
+# np.save("int_freqs_accurate_MHz", freqs)
+sbs = np.load("Striae_SB_15012020.npy")
+#for i in range(155,156):
+for i in [117,118]:#sbs[11:]:
 	SB = "L401003_SB{}_uv.dppp.MS/".format(str(int(i)).zfill(3))
 	t_start ="2015-10-17T13:16:40.000"#"2015-10-17T13:21:53.900" #"2015-10-17T12:00:00"#"2015-10-17T13:21:20" #"2015-10-17T13:21:53"
 	t_end = "2015-10-17T13:22:00.000"#"2015-10-17T13:21:54.000"#"2015-10-17T12:00:05"#"2015-10-17T13:22:00"#"2015-10-17T13:23:00"
 	print("Saving for " + SB)
 
-	outfile, freq, phs_dir, times, dt,sb_width,uvws,ant0,ant1,flag,data,vis,weights = get_MS_data(SB, t_start,t_end,av=False)
-	np.savez(outfile, freq=freq, phs_dir=phs_dir, times=times, dt=dt, df=sb_width, uvws=uvws, ant0=ant0, ant1=ant1,flag=flag, data=data,vis=vis, weights=weights)
+	outfile, freq, phs_dir, times, dt,sb_width,uvws,ant0,ant1,flag,data,vis,weights,mdl = get_MS_data(SB, t_start,t_end,av=False)
+	np.savez(outfile, freq=freq, phs_dir=phs_dir, times=times, dt=dt, df=sb_width, uvws=uvws, ant0=ant0, ant1=ant1,flag=flag, data=data,vis=vis, weights=weights, mdl=mdl)
 
 
 
