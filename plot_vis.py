@@ -33,6 +33,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--vis_file', dest='vis_file', help='Input visibility file. \
 	Must be npz file of the same format as that created by vis_to_npy.py', default='SB076MS_data.npz')
 parser.add_argument('--bf_file', dest='bf_file', help='Input HDF5 file containing beamformed data', default='L401005_SAP000_B000_S0_P000_bf.h5')
+parser.add_argument('--peak', dest='peak', type=int, help='index for flux peak', default=28)
 args = parser.parse_args()
 vis_file = args.vis_file
 bf_file = args.bf_file
@@ -955,13 +956,17 @@ if __name__ == "__main__":
 	somehting in his paper but until then...
 	Reid & Kontar 2018 t = 1.5f^-0.77 per 30MHz
 	"""
-	peak_dict = {"059":38, "117":50, "118":50, "119":50, "120":50, "125":49, "126":50, "127":50, "130":49, "133":47, "160":23}
+	peak_dict = {"059":38, "076":28, "117":50, "118":50, "119":50, "120":50, "125":49, "126":50, "127":50, "130":49, "133":47, "160":23}
 	e_krups = []
 	e_steins = []
 	freqs = []
 	# for sb in peak_dict:
 	# 	vis_file = vis_file.replace(vis_file[2:5],sb)
-	peak = peak_dict[vis_file[2:5]]
+	# peak = peak_dict[vis_file[2:5]]
+	try:
+		peak = peak_dict[vis_file[2:5]]
+	except KeyError:
+		peak = args.peak
 	# if vis_file[2:5] == "015":
 	# 	peak = 40
 	# elif vis_file[2:5] == "040":

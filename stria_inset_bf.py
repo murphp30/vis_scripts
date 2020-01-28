@@ -27,6 +27,7 @@ from plot_vis import LOFAR_vis
 parser = argparse.ArgumentParser()
 parser.add_argument('--vis_file', dest='vis_file', help='Input visibility file. \
 	Must be npz file of the same format as that created by vis_to_npy.py', default='SB076MS_data.npz')
+parser.add_argument('--peak', dest='peak', type=int, help='user defined peak', default=28)
 args = parser.parse_args()
 vis_file = args.vis_file
 
@@ -50,7 +51,7 @@ peak_dict = {"059":38, "117":50, "118":50, "119":50, "120":50, "125":49, "126":5
 try:
 	peak = peak_dict[vis_file[2:5]]
 except KeyError:
-	peak = 28
+	peak = args.peak
 q_t = 1199
 stria_vis = LOFAR_vis(vis_file, q_t+peak)
 stria_floc = np.where(freq == stria_vis.freq*1e-6 +(df/2))[0][0]
