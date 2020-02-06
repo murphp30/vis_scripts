@@ -17,7 +17,7 @@ from sunpy.map import header_helper
 import sunpy.coordinates
 import sunpy.coordinates.sun as sun
 from sunpy.coordinates import frames
-
+from icrs_to_helio import icrs_to_helio
 
 
 
@@ -209,7 +209,7 @@ if __name__ == "__main__":
     smap.meta['waveunit'] = "MHz"
     # smap.plot(cmap='viridis')
     fig = plt.figure()
-    helio_smap = LOFAR_to_sun(smap)
+    helio_smap = icrs_to_helio(smap)#LOFAR_to_sun(smap)
     ax0 = fig.add_subplot(1,1,1,projection=helio_smap)
     helio_smap.plot_settings["title"] = str(np.round(helio_smap.meta['wavelnth'],2)) + " MHz " + helio_smap.date.value
     helio_smap.plot(cmap='viridis')
