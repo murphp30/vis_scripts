@@ -27,7 +27,9 @@ def icrs_to_helio(smap):
     obstime = smap.meta['date-obs']
     dsun_obs = sun.earth_distance(obstime)
     latlon = [52.905329712, 6.867996528] * u.deg # LOFAR core in The Netherlands.
-    gps = EarthLocation(lat=latlon[0], lon=latlon[1])
+    gps = EarthLocation(lat=latlon[0], lon=latlon[1]) # LOFAR core in The Netherlands in ITRF.
+    core_ITRF = np.array((3826577.066, 461022.948, 5064892.786))
+    gps = EarthLocation.from_geocentric(*core_ITRF, u.m)
     roll_angle = sunpy.coordinates.sun.P(obstime) #90*u.deg-sun.orientation(gps, obstime) #+ 270*u.deg
     crln_obs = sunpy.coordinates.sun.L0(obstime)
     crlt_obs = sunpy.coordinates.sun.B0(obstime)
@@ -38,8 +40,8 @@ def icrs_to_helio(smap):
     obs_coord = SkyCoord(smap.reference_coordinate, 
             distance=dsun_obs, 
             obstime=obstime, 
-            frame='icrs',
-            equinox='J2000').transform_to(frame='helioprojective', merge_attributes=True)
+            # frame='icrs',
+            equinox='J2000').transform_to(frame=frames.Helioprojective(observer='earth'), merge_attributes=True)
 
     pc = np.zeros([2,2])
     lamb = smap.meta['cdelt1']/smap.meta['cdelt2']

@@ -210,16 +210,25 @@ if __name__ == "__main__":
     # smap.plot(cmap='viridis')
     fig = plt.figure()
     helio_smap = icrs_to_helio(smap)#LOFAR_to_sun(smap)
-    ax0 = fig.add_subplot(1,1,1,projection=helio_smap)
-    helio_smap.plot_settings["title"] = str(np.round(helio_smap.meta['wavelnth'],2)) + " MHz " + helio_smap.date.value
-    helio_smap.plot(cmap='viridis')
+    solar_PA = sunpy.coordinates.sun.P(smap.date).deg
     if fits_in[-8:] != "psf.fits":
+        ax0 = fig.add_subplot(1,1,1,projection=helio_smap)
+        helio_smap.plot_settings["title"] = str(np.round(helio_smap.meta['wavelnth'],2)) + " MHz " + helio_smap.date.value
+        helio_smap.plot(cmap='viridis')
         helio_smap.draw_limb(color='r')
-        b = Ellipse((200,200), Angle(smap.meta['BMAJ']*u.deg).arcsec/abs(smap.scale[0].to(u.arcsec/u.pix).value), Angle(smap.meta['BMIN']*u.deg).arcsec/abs(smap.scale[1].to(u.arcsec/u.pix).value),angle=90+smap.meta['BPA'], fill=False, color='w',ls='--')
+
+        b = Ellipse((200,200), Angle(smap.meta['BMAJ']*u.deg).arcsec/abs(smap.scale[0].to(u.arcsec/u.pix).value),
+         Angle(smap.meta['BMIN']*u.deg).arcsec/abs(smap.scale[1].to(u.arcsec/u.pix).value),
+         angle=90-smap.meta['BPA']+solar_PA, fill=False, color='w',ls='--')
     else:
-        b = Ellipse((smap.reference_pixel[0].value,smap.reference_pixel[1].value), Angle(smap.meta['BMAJ']*u.deg).arcsec/abs(smap.scale[0].to(u.arcsec/u.pix).value), Angle(smap.meta['BMIN']*u.deg).arcsec/abs(smap.scale[1].to(u.arcsec/u.pix).value),angle=90+smap.meta['BPA'], fill=False, color='w',ls='--')
+        ax0 = fig.add_subplot(1,1,1,projection=smap)
+        smap.plot()
+        b = Ellipse((smap.reference_pixel[0].value,smap.reference_pixel[1].value), 
+            Angle(smap.meta['BMAJ']*u.deg).arcsec/abs(smap.scale[0].to(u.arcsec/u.pix).value), 
+            Angle(smap.meta['BMIN']*u.deg).arcsec/abs(smap.scale[1].to(u.arcsec/u.pix).value),
+            angle=90+smap.meta['BPA'], fill=False, color='w',ls='--')
     ax0.add_patch(b)
-    plt.colorbar()
+    plt.colorbar() 
     plt.savefig(out_png)
     # plt.show()
     #pdb.set_trace()
