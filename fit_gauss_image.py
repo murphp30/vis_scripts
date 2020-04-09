@@ -114,10 +114,17 @@ zoom_centre = rot_helio.world_to_pixel(gauss_centre)
 zoom_xy = pix_locs(rot_helio)
 x_cen = int(zoom_centre.x.round().value)
 y_cen = int(zoom_centre.y.round().value)
-x_1D_helio, y_1D_helio =  rot_helio.data[:,y_cen], rot_helio.data[x_cen,:]
+new_dims = [100,100]*u.pix  #Resample data to 100 * 100 for histogram plot
+helio_resample = rot_helio.resample(new_dims)
+resample_xy = pix_locs(helio_resample)
+x_1D_helio, y_1D_helio =  helio_resample.data[:,50], helio_resample.data[50,:]
 x_1D_fit, y_1D_fit =  rot_fit.data[:,y_cen], rot_fit.data[x_cen,:]
+#x_1D_hist = np.histogram(x_1D_helio, nbins)
+#y_1D_hist = np.histogram(y_1D_helio, nbins)
 zoom_xarr = zoom_xy[:, y_cen]#zoom_xy.Tx[0]
 zoom_yarr = zoom_xy[x_cen, :]#zoom_xy.Ty.T[0]
+resample_xarr = resample_xy[:, 50]
+resample_yarr = resample_xy[50, :]
 coord_x = rot_helio.pixel_to_world([x_cen, x_cen]*u.pix, [0,(zoom_xy.shape[0]-1)]*u.pix)
 coord_y = rot_helio.pixel_to_world([0,(zoom_xy.shape[1]-1)]*u.pix, [y_cen, y_cen]*u.pix)
 #Printing stuff
@@ -135,12 +142,15 @@ ax0 = fig.add_subplot(gs[0:1,0:3])
 ax = fig.add_subplot(gs[1:4,0:3], projection = rot_helio)
 ax1 = fig.add_subplot(gs[1:4,3])
 rot_helio.plot(axes=ax, title='')
+rot_helio.draw_limb(ax)
 rot_fit.draw_contours(axes=ax,levels=[50]*u.percent, colors=['red'])
 ax.plot_coord(coord_x, '--')
 ax.plot_coord(coord_y, '--')
-ax0.plot(zoom_yarr.Ty,y_1D_helio,drawstyle='steps-mid')
+ax0.plot(resample_yarr.Ty,y_1D_helio,drawstyle='steps-mid')
+#ax0.hist(*y_1D_hist, orientation = 'horizontal')
 ax0.plot(zoom_yarr.Ty,y_1D_fit)
-ax1.plot(x_1D_helio,zoom_xarr.Tx,drawstyle='steps-mid')
+ax1.plot(x_1D_helio,resample_xarr.Tx,drawstyle='steps-mid')
+#ax1.hist(*x_1D_hist)
 ax1.plot(x_1D_fit,zoom_xarr.Tx)
 
 ax0.set_yticklabels([])
@@ -151,6 +161,11 @@ ax0.set_yticks([])
 ax0.set_xticks([])
 ax1.set_yticks([])
 ax1.set_xticks([])
-plt.savefig("gauss_fit_data.png", dpi=400)
+if model:
+    ax0.set_title("Model Fit")
+    plt.savefig("gauss_fit_model.png", dpi=400)
+else:
+    ax0.set_title("Data Fit") 
+    plt.savefig("gauss_fit_data.png", dpi=400)
 plt.show()
 
