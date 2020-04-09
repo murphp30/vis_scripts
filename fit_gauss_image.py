@@ -77,56 +77,49 @@ def rotate_zoom(smap, x0, y0,theta):
 lofarfile = sys.argv[1]
 lofarmap = Map(lofarfile)
 lofarmap.plot_settings['cmap'] = 'viridis'
-heliomap = icrs_to_helio.icrs_to_helio(lofarmap)
-heliomap.plot_settings['cmap'] = 'viridis'
+heliomap0 = icrs_to_helio.icrs_to_helio(lofarmap)
 
-
+model = True 
 #defining initial params
-xy_mesh = pix_locs(heliomap).T
+xy_mesh = pix_locs(heliomap0).T
 xy_arcsec = [xy_mesh.Tx.arcsec, xy_mesh.Ty.arcsec]
 #Fitting stuff
 gmodel = Model(gauss_2d)
-#init_params = make_init_params(heliomap)
-model_gauss = gauss_2d(xy_arcsec,2000,-300,50,
-			Angle(9*u.arcmin).arcsec/(2 * np.sqrt(2*np.log(2))),
-			Angle(19*u.arcmin).arcsec/(2 * np.sqrt(2*np.log(2))),
-			0.5,10)
-#model_gauss = model_gauss.T
-noise = 0.06
-model_gauss = model_gauss + noise*model_gauss.max()*np.random.normal(size=model_gauss.shape)
-model_map = sunpy.map.Map(model_gauss, heliomap.meta)
-params = make_params(model_map)
-#params = make_params(heliomap)
+if model:
+    model_gauss = gauss_2d(xy_arcsec,2000,-300,50,
+    			Angle(9*u.arcmin).arcsec/(2 * np.sqrt(2*np.log(2))),
+    			Angle(19*u.arcmin).arcsec/(2 * np.sqrt(2*np.log(2))),
+    			0.5,10)
+    noise = 0.06
+    model_gauss = model_gauss + noise*model_gauss.max()*np.random.normal(size=model_gauss.shape)
+    heliomap = sunpy.map.Map(model_gauss, heliomap0.meta)
+else:
+    heliomap = heliomap0
+params = make_params(heliomap)
 print("Beginning fit")
-gfit = gmodel.fit(model_map.data, params, xy=xy_arcsec)
-#gfit = gmodel.fit(heliomap.data, params, xy=xy_arcsec)
+gfit = gmodel.fit(heliomap.data, params, xy=xy_arcsec)
 #this takes longer than I would like something to do with it not being a np.meshgrid?
+heliomap.plot_settings['cmap'] = 'viridis'
 #Preparing stuff for a pretty plot
 x0 = gfit.params['x0'] * u.arcsec
 y0 = gfit.params['y0'] * u.arcsec
 theta = Angle(gfit.params['theta'] * u.rad)
-gauss_centre = Helioprojective(x0,y0, observer='earth', obstime=heliomap.date)
-fit_map = sunpy.map.Map(gfit.best_fit, heliomap.meta)
+gauss_centre = Helioprojective(x0,y0, observer='earth', obstime=heliomap0.date)
+fit_map = sunpy.map.Map(gfit.best_fit, heliomap0.meta)
 
 rot_fit = rotate_zoom(fit_map, x0, y0, theta) #fit_zoom.rotate(-theta)
 rot_helio = rotate_zoom(heliomap, x0, y0, theta)#helio_zoom.rotate(-theta)
-rot_model = rotate_zoom(model_map, x0, y0, theta) #model_zoom.rotate(-theta)
 
-#zoom_centre = rot_helio.world_to_pixel(gauss_centre)
-zoom_centre = rot_model.world_to_pixel(gauss_centre)
-#zoom_xy = pix_locs(rot_helio)
-zoom_xy = pix_locs(rot_model)
+zoom_centre = rot_helio.world_to_pixel(gauss_centre)
+zoom_xy = pix_locs(rot_helio)
 x_cen = int(zoom_centre.x.round().value)
 y_cen = int(zoom_centre.y.round().value)
-x_1D_model, y_1D_model =  rot_model.data[:,y_cen], rot_model.data[x_cen,:]
 x_1D_helio, y_1D_helio =  rot_helio.data[:,y_cen], rot_helio.data[x_cen,:]
 x_1D_fit, y_1D_fit =  rot_fit.data[:,y_cen], rot_fit.data[x_cen,:]
 zoom_xarr = zoom_xy[:, y_cen]#zoom_xy.Tx[0]
 zoom_yarr = zoom_xy[x_cen, :]#zoom_xy.Ty.T[0]
-#coord_x = rot_helio.pixel_to_world([x_cen, x_cen]*u.pix, [0,(zoom_xy.shape[0]-1)]*u.pix)
-#coord_y = rot_helio.pixel_to_world([0,(zoom_xy.shape[1]-1)]*u.pix, [y_cen, y_cen]*u.pix)
-coord_x = rot_model.pixel_to_world([x_cen, x_cen]*u.pix, [0,(zoom_xy.shape[0]-1)]*u.pix)
-coord_y = rot_model.pixel_to_world([0,(zoom_xy.shape[1]-1)]*u.pix, [y_cen, y_cen]*u.pix)
+coord_x = rot_helio.pixel_to_world([x_cen, x_cen]*u.pix, [0,(zoom_xy.shape[0]-1)]*u.pix)
+coord_y = rot_helio.pixel_to_world([0,(zoom_xy.shape[1]-1)]*u.pix, [y_cen, y_cen]*u.pix)
 #Printing stuff
 print(gfit.fit_report())
 fwhmx = Angle((2*np.sqrt(2*np.log(2))*gfit.params['sig_x']) * u.arcsec).arcmin
@@ -136,35 +129,18 @@ print(fwhmx, fwhmy)
 
 #Plotting stuff
 #heliomap.plot(title="Burst at {} MHz {}".format(str(np.round(heliomap.wavelength.value,3)),heliomap.date.isot))
-##model_map.plot(title="Burst at {} MHz {}".format(str(np.round(heliomap.wavelength.value,3)),heliomap.date.isot))
-#fit_map.draw_contours(levels=[50]*u.percent, colors='red')
-#plt.figure()
-##rot_model.plot()
-#rot_helio.plot()
-#rot_fit.draw_contours(levels=[50]*u.percent, colors='red')
-#plt.figure()
-##plt.plot(zoom_xarr, x_1D_model)
-#plt.plot(zoom_xarr, x_1D_helio)
-#plt.plot(zoom_xarr, x_1D_fit)
-#plt.figure()
-##plt.plot(zoom_yarr, y_1D_model)
-#plt.plot(zoom_yarr, y_1D_helio)
-#plt.plot(zoom_yarr, y_1D_fit)
 fig = plt.figure(figsize = (6, 6))
 gs = GridSpec(4,4)
 ax0 = fig.add_subplot(gs[0:1,0:3])
 ax = fig.add_subplot(gs[1:4,0:3], projection = rot_helio)
 ax1 = fig.add_subplot(gs[1:4,3])
-#rot_helio.plot(axes=ax, title='')
-rot_model.plot(axes=ax, title='')
+rot_helio.plot(axes=ax, title='')
 rot_fit.draw_contours(axes=ax,levels=[50]*u.percent, colors=['red'])
 ax.plot_coord(coord_x, '--')
 ax.plot_coord(coord_y, '--')
-#ax0.plot(zoom_yarr.Ty,y_1D_helio,drawstyle='steps-mid')
-ax0.plot(zoom_yarr.Ty,y_1D_model,drawstyle='steps-mid')
+ax0.plot(zoom_yarr.Ty,y_1D_helio,drawstyle='steps-mid')
 ax0.plot(zoom_yarr.Ty,y_1D_fit)
-#ax1.plot(x_1D_helio,zoom_xarr.Tx,drawstyle='steps-mid')
-ax1.plot(x_1D_model,zoom_xarr.Tx,drawstyle='steps-mid')
+ax1.plot(x_1D_helio,zoom_xarr.Tx,drawstyle='steps-mid')
 ax1.plot(x_1D_fit,zoom_xarr.Tx)
 
 ax0.set_yticklabels([])
