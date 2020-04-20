@@ -104,7 +104,7 @@ if __name__ == "__main__":
 	aiafile = sys.argv[2] #'/Users/murphp30/Documents/Postgrad/my_papers/20151017/AIA20171015.fits'#'/Users/eoincarley/Data/2013_may_31/AIA/aia.lev1.171A_2013-05-31T11_11_35.34Z.image_lev1.fits'
 	# lofarfile = '/Users/murphp30/mnt/murphp30_data/typeIII_int/briggs_comparison/SB076_b-1-image.fits' #'./wsclean-SB076-b_0-image.fits'#'/Users/murphp30/mnt/murphp30_data/typeIII_int/SB076_auto_b0-image.fits'#'./wsclean-SB076-b_0-image.fits'#gain_corrections/bm1/multiscale/wsclean-t0012-image.fits'#'/Users/eoincarley/Data/2013_may_31/lofar/fits_SB008_58MHz/L141641_SAP000_44MHz-t0132-image.fits'
 
-	plot_aia_lofar(aiafile, lofarfile, writepng=False, axlims=[-2500,2500], beampos=(1500,-1500))
+	plot_aia_lofar(aiafile, lofarfile, writepng=True, axlims=[-2500,2500], beampos=(1500,-1500))
 
 plt.show()
 
