@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+#similar to stria_inset_bf.py but does not include
+#beamformed data
 
 import matplotlib.pyplot as plt
 from matplotlib import dates

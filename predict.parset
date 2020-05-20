@@ -1,0 +1,14 @@
+msin=L401001_SB405_uv.dppp.MS
+msout=.
+msin.starttime=17Oct2015/13:16:40.000
+msin.endtime=17Oct2015/13:26:00.000
+steps=[gaincal]
+gaincal.usebeammodel=True
+gaincal.solint=4
+#gaincal.timeslotsperparmupdate=4
+gaincal.maxiter=100
+gaincal.sources=VirA_4_patch
+gaincal.sourcedb=virgo.sourcedb
+gaincal.onebeamperpatch=True
+gaincal.caltype=diagonal
+#gaincal.uvlambdamin=300

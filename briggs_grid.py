@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+#Used to create Figure 2 in Murphy et al. 2020
+
 import matplotlib.pyplot as plt
 from matplotlib.gridspec import GridSpec
 import numpy as np

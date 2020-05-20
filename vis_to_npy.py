@@ -3,7 +3,6 @@
 #convert visibility data to np arrays
 #must be run inside CASA
 #execfile(vis_to_npy.py)
-#therefore python 2
 
 import numpy as np
 import argparse
@@ -122,8 +121,9 @@ def get_freq(SB):
 # sb_arr = np.arange(244)
 # freqs = [get_freq(sb) for sb in sb_arr]
 # np.save("int_freqs_accurate_MHz", freqs)
-sbs = np.load("Striae_SB_15012020.npy")
+#sbs = np.load("Striae_SB_15012020.npy")
 #for i in range(155,156):
+#change this to whichever subband number you want an array for
 for i in [76]:#sbs[11:]:
 	SB = "L401003_SB{}_uv.dppp.MS/".format(str(int(i)).zfill(3))
 	t_start ="2015-10-17T13:16:40.000"#"2015-10-17T13:21:53.900" #"2015-10-17T12:00:00"#"2015-10-17T13:21:20" #"2015-10-17T13:21:53"

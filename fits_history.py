@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-
+#prints history metadata from a fits file
 import argparse
 from astropy.io import fits
 

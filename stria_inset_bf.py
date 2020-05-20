@@ -1,4 +1,8 @@
 #!/usr/bin/env python
+#Used to create Figure 1 in Murphy et al. 2020
+
+
+
 # from matplotlib import rcParams
 # rcParams['font.family'] = 'serif'
 # rcParams['font.serif'] = ['Times New Roman']
@@ -19,6 +23,7 @@ from astropy.io import fits
 import sunpy
 import sunpy.map
 import sunpy.coordinates.sun as sun
+from sunpy.instr.goes import flux_to_flareclass, flareclass_to_flux
 #from radiospectra.spectrogram import Spectrogram
 import pdb
 from plot_fits import LOFAR_to_sun
@@ -94,10 +99,21 @@ v0 = gax.axvline(bf_tr.start.plot_date, color="r")
 v1 = gax.axvline(bf_tr.end.plot_date, color="r")
 gax.xaxis.set_major_formatter(date_format_goes)
 #gax.set_title("GOES Xray Flux")
-# gax.set_xlabel(tr.start.isot[:10])
+gax.set_xlabel("Time (UTC)",fontsize=14)
 gax.set_ylabel(r"Watts m$^{-2}$",fontsize=14)
 gax.text(0.05,0.9,'a) GOES Xray Flux', fontdict={'size':14}, transform=gax.transAxes)
 gax.set_yscale("log")
+gax2 = ax1.twinx()
+gax2.set_yscale("log")
+gax.set_ylim(1e-10, 1e-3)
+gax2.set_ylim(1e-10, 1e-3)
+gax2.set_yticks((1e-10, 1e-9, 1e-8, 1e-7, 1e-6, 1e-5, 1e-4, 1e-3))#((1e-9, 1e-8, 1e-7, 1e-6, 1e-5, 1e-4, 1e-3, 1e-2))
+gax2.set_yticklabels((' ', ' ', 'A', 'B', 'C', 'M', 'X', ' '))#((' ', 'A', 'B', 'C', 'M', 'X', ' '))
+handles, labels = gax.get_legend_handles_labels()
+handles.reverse()
+labels.reverse()
+gax.yaxis.grid(True, 'major')
+gax.legend(handles, labels)
 # for tick in gax.get_xticklabels():
 #     tick.set_rotation(0)
 ax2.imshow(data[:,1000:].T, aspect='auto', extent=[bf_dt_arr[0], bf_dt_arr[-1], freq[-1], freq[1000]],
@@ -110,7 +126,7 @@ ax2.xaxis_date()
 ax2.xaxis.set_major_formatter(date_format_bf)
 # plt.axhline(y=freq[stria_floc], color='r')
 # plt.axvline(x=bf_dt_arr[stria_tloc], color='r')
-ax2.set_xlabel("Time",fontsize=14)
+ax2.set_xlabel("Time (UTC)",fontsize=14)
 ax2.set_ylabel("Frequency (MHz)",fontsize=14)
 ax2.set_yticklabels([*ax2.get_yticks()], fontsize=14)
 text2 = ax2.text(0.05,0.9,'b) LOFAR Dynamic Spectrum', fontdict={'size':14,'color':'w'}, transform=ax2.transAxes)
@@ -166,7 +182,7 @@ ax0.scatter(bf_dt_arr[stria_tloc],freq[stria_floc],color='w', marker='+')
 #ax0.axhline(freq[stria_floc], color='w', ls='--')
 
 ax0.xaxis_date()
-ax0.set_xlabel('Time')
+ax0.set_xlabel('Time (UTC)')
 ax0.set_ylabel('Frequecny (MHz)')
 ax0.xaxis.set_major_formatter(date_format0)
 ax0.spines['top'].set_color('white')

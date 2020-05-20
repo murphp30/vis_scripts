@@ -8,6 +8,7 @@ import astropy.units as u
 import sunpy.coordinates.sun as sun
 from math import cos, sin
 from astropy.io import fits
+from astropy.time import Time
 from astropy.coordinates import SkyCoord, EarthLocation
 from sunpy import coordinates
 from sunpy.map import header_helper
@@ -26,22 +27,24 @@ def icrs_to_helio(smap):
 
     obstime = smap.meta['date-obs']
     dsun_obs = sun.earth_distance(obstime)
-    latlon = [52.905329712, 6.867996528] * u.deg # LOFAR core in The Netherlands.
-    gps = EarthLocation(lat=latlon[0], lon=latlon[1]) # LOFAR core in The Netherlands in ITRF.
+    #earth = get_body_heliographic_stonyhurst("earth", time=obstime)
+    #latlon = [52.905329712, 6.867996528] * u.deg # LOFAR core in The Netherlands.
+    #gps = EarthLocation(lat=latlon[0], lon=latlon[1]) # LOFAR core in The Netherlands in ITRF.
     core_ITRF = np.array((3826577.066, 461022.948, 5064892.786))
     gps = EarthLocation.from_geocentric(*core_ITRF, u.m)
+    lofar_coord = SkyCoord(gps.get_itrs(Time(obstime)))
     roll_angle = sunpy.coordinates.sun.P(obstime) #90*u.deg-sun.orientation(gps, obstime) #+ 270*u.deg
     crln_obs = sunpy.coordinates.sun.L0(obstime)
     crlt_obs = sunpy.coordinates.sun.B0(obstime)
     hgln_obs = sunpy.coordinates.sun.L0(obstime)*0.0
     hglt_obs = sunpy.coordinates.sun.B0(obstime)
     wavelnth = smap.meta['crval3']/1e6
-
+    #obs_frame = frames.HeliographicStonyhurst( (earth.cartesian.xyz.to(u.m) - core_ITRF*u.m), representation="cartesian",obstime=obstime) 
     obs_coord = SkyCoord(smap.reference_coordinate, 
             distance=dsun_obs, 
             obstime=obstime, 
             # frame='icrs',
-            equinox='J2000').transform_to(frame=frames.Helioprojective(observer='earth'), merge_attributes=True)
+            equinox='J2000').transform_to(frame=frames.Helioprojective(observer=lofar_coord), merge_attributes=True)
 
     pc = np.zeros([2,2])
     lamb = smap.meta['cdelt1']/smap.meta['cdelt2']

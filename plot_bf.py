@@ -1,5 +1,8 @@
 #!/usr/bin/env python
 #script to find striae in dynamic spectrum and run wsclean for appropriate SBs
+#The only important thing is get_data which gets beamformed data
+#from the input h5 file and a given time range.
+
 #Author: Pearse Murphy
 
 import glob

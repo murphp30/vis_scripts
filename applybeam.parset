@@ -1,0 +1,8 @@
+msin=L401003_SB076_uv.dppp.MS
+msout=. 
+msin.datacolumn=CORR_NO_BEAM 
+msin.starttime=17Oct2015/13:16:40.000
+msin.endtime=17Oct2015/13:26:00.000
+msout.datacolumn=CORRECTED_DATA 
+steps=[applybeam] 
+applybeam.updateweights=True
