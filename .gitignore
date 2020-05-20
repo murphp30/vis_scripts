@@ -8,8 +8,12 @@ __pycache__
 *.svg
 plot_fits_01.py
 plot_solutions_all_stations_v2.py
+pfss*
 *._*
 fix_cal.py
 extract_timerange.py
+icrs_to_helio.py
+krupar_fig8_guess.py
 pearse_plot_fits.py
+plot_aia_lofar.py
 *.fits
